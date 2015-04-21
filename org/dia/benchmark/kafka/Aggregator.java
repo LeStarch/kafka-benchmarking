@@ -8,6 +8,11 @@ import org.dia.benchmark.kafka.Configuration;
  * @starchmd
  */
 public interface Aggregator {
+	/**
+	 * Setup function to supply configuration
+	 * @param config - configuration object
+	 */
+	public void setup(Configuration config);
     /**
      * Start the aggregator and its internal aggregation.
      */
