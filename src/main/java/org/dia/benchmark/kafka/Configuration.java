@@ -1,18 +1,4 @@
-Kafka Benchmarking
-==================
-
-Ongoing work on the Streaming-OODT project (http://oodt.apache.org/ , https://issues.apache.org/jira/browse/OODT-698) has seen a need to test Kafka at a large scale. The goal of this work is to get 10Gb/s flowing through a Kafka system.
-
-This has lead to the need for a Kafka benchmarking suite. That work is captured here.
-
-
-Code Base
----------
-
-Java is choosen as the language of choice for this project because OODT's primary language is Java and thus java should be used to ensure compatibility with OODT.
-
-License
--------
+/*
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements.  See the NOTICE.txt file distributed with this work for
 additional information regarding copyright ownership.  The ASF licenses this
@@ -27,5 +13,24 @@ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 License for the specific language governing permissions and limitations under
 the License.
+ */
+package org.dia.benchmark.kafka;
 
+/**
+ * Class that holds configuration for the Kafka benchmarks.
+ *
+ * @author starchmd
+ */
+public class Configuration {
+    //Number of consumers
+    public int CONSUMER_COUNT = 1;
 
+    //Number of producers
+    public int PRODUCER_COUNT = 1;
+
+    //Number of topics
+    public int TOPIC_COUNT = 1;
+
+    //Shared prefix of all topics, topics will look like <TOPIC_PREFIX>#
+    public String TOPIC_PREFIX = "TOPIC_";
+}

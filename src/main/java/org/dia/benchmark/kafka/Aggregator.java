@@ -1,18 +1,4 @@
-Kafka Benchmarking
-==================
-
-Ongoing work on the Streaming-OODT project (http://oodt.apache.org/ , https://issues.apache.org/jira/browse/OODT-698) has seen a need to test Kafka at a large scale. The goal of this work is to get 10Gb/s flowing through a Kafka system.
-
-This has lead to the need for a Kafka benchmarking suite. That work is captured here.
-
-
-Code Base
----------
-
-Java is choosen as the language of choice for this project because OODT's primary language is Java and thus java should be used to ensure compatibility with OODT.
-
-License
--------
+/*
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements.  See the NOTICE.txt file distributed with this work for
 additional information regarding copyright ownership.  The ASF licenses this
@@ -27,5 +13,30 @@ distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 License for the specific language governing permissions and limitations under
 the License.
+ */
+package org.dia.benchmark.kafka;
 
+import org.dia.benchmark.kafka.Configuration;
 
+/**
+ * Interface used to support aggregation of measured data.
+ *
+ * @starchmd
+ */
+public interface Aggregator {
+	/**
+	 * Setup function to supply configuration
+	 * @param config - configuration object
+	 */
+	public void setup(Configuration config);
+    /**
+     * Start the aggregator and its internal aggregation.
+     */
+    public void start();
+
+    /**
+     * Stop the aggregator and report the message count.
+     * @return - number of messages counted.
+     */
+    public long stop();
+}
