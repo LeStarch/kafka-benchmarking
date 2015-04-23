@@ -21,7 +21,7 @@ import org.dia.benchmark.kafka.Configuration;
 /**
  * Interface used to support aggregation of measured data.
  *
- * @starchmd
+ * @author starchmd
  */
 public interface Aggregator {
 	/**
