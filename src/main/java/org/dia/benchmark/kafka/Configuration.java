@@ -16,6 +16,12 @@ the License.
  */
 package org.dia.benchmark.kafka;
 
+import kafka.consumer.ConsumerConfig;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * Class that holds configuration for the Kafka benchmarks.
  *
@@ -30,7 +36,41 @@ public class Configuration {
 
     //Number of topics
     public int TOPIC_COUNT = 1;
+    
+    //Kafka config
+    public String GROUP_ID = "CosumerGroup";
 
+    //Zookeeper properties
+    public String ZOOKEEPER_CONNECT = "http://localhost:8080";
+    public int ZOOKEEPER_SYNC_TIME_MS = 200;
+    public int ZOOKEEPER_SESSION_TIMEOUT_MS = 400;
+    
     //Shared prefix of all topics, topics will look like <TOPIC_PREFIX>#
     public String TOPIC_PREFIX = "TOPIC_";
+
+    /**
+     * Produce Kafka consumer properties
+     * @return Kafka Consumer Config
+     */
+    public ConsumerConfig getKafkaConsumerProperties() {
+        Properties props = new Properties();
+        props.put("zookeeper.connect", ZOOKEEPER_CONNECT);
+        props.put("group.id", GROUP_ID);
+        props.put("zookeeper.session.timeout.ms", ""+ZOOKEEPER_SESSION_TIMEOUT_MS);
+        props.put("zookeeper.sync.time.ms", ""+ZOOKEEPER_SYNC_TIME_MS);
+        props.put("auto.commit.interval.ms", "1000");
+        return new ConsumerConfig(props);
+    }
+    /**
+     * Get a map of topic to thread count
+     * @param topic - number of topics
+     * @param threadPreTopic - number of threads per topic
+     * @return map of topic name to thread count
+     */
+    public Map<String,Integer> getTopicThreadCounts(int topic,int threadPreTopic) {
+        Map<String,Integer> map = new HashMap<String,Integer>();
+        for (int i = 0; i < topic; i++)
+            map.put(TOPIC_PREFIX+i, threadPreTopic);
+        return map;
+    }
 }

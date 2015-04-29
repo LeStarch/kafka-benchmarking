@@ -113,8 +113,11 @@ the License.
             </plugin>
         </plugins>
     </build>
-    <dependencyManagement>
-        <dependencies>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka_2.10</artifactId>
+        <version>0.8.2.1</version>
+      </dependency>
+    </dependencies>
 </project>

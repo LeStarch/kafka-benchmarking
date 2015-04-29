@@ -16,6 +16,12 @@ the License.
  */
 package org.dia.benchmark.kafka.consumer;
 
+import kafka.javaapi.consumer.ConsumerConnector;
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
+
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -34,16 +40,22 @@ public class BandwidthConsumer implements Aggregator {
 
     @Override
     public void setup(Configuration config) {
+        
         children = new Child[config.CONSUMER_COUNT];
         executor = Executors.newFixedThreadPool(children.length);
+        
+        ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(config.getKafkaConsumerProperties());
+        Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = consumer.createMessageStreams(config.getTopicThreadCounts(config.TOPIC_COUNT, config.CONSUMER_COUNT/config.TOPIC_COUNT));
         for (int i = 0; i < children.length; i++) {
+            children[i] = new Child();
+            children[i].setup(messageStreams.get(config.TOPIC_PREFIX+(i/config.TOPIC_COUNT)).get(i%config.TOPIC_COUNT));
         }
     }
 
     @Override
     public void start() {
         for (int i = 0; i < children.length; i++) {
-            executor.execute(new Child());
+            executor.execute(children[i]);
         }
     }
 
@@ -63,6 +75,8 @@ public class BandwidthConsumer implements Aggregator {
     private class Child implements Runnable {
         long messages = -1;
         boolean stop = false;
+        
+        ConsumerIterator<byte[], byte[]> iterator = null;
 
         @Override
         public void run() {
@@ -78,6 +92,13 @@ public class BandwidthConsumer implements Aggregator {
                     messages += count;
                 }
             }
+        }
+        /**
+         * Setup this child.
+         * @param stream - KafkaStream to read from
+         */
+        public void setup(KafkaStream<byte[], byte[]> stream) {
+            iterator = stream.iterator();
         }
         /**
          * Return the count of messages
@@ -98,6 +119,10 @@ public class BandwidthConsumer implements Aggregator {
          * @return count of messages cosumed
          */
         private long consume() {
+            if (iterator.hasNext()) {
+                iterator.next();
+                return 1;
+            }
             return 0;
         }
     }
