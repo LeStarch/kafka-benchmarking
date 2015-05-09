@@ -41,7 +41,7 @@ public class Configuration {
     public String GROUP_ID = "CosumerGroup";
 
     //Zookeeper properties
-    public String ZOOKEEPER_CONNECT = "http://localhost:8080";
+    public String ZOOKEEPER_CONNECT = "localhost:2181";
     public int ZOOKEEPER_SYNC_TIME_MS = 200;
     public int ZOOKEEPER_SESSION_TIMEOUT_MS = 400;
     

@@ -69,6 +69,40 @@ public class BandwidthConsumer implements Aggregator {
         return total;
     }
     /**
+     * Get total message count (to date)
+     */
+    public long getTotalMessages() {
+        long total = 0;
+        for (int i = 0; i < children.length; i++) {
+            total += children[i].getMessageCount();
+        }
+        return total;
+    }
+    
+    /**
+     * Test main program.
+     * @param args - command line arguments
+     */
+    public static void main(String[] args) {
+        final BandwidthConsumer bc = new BandwidthConsumer();
+        Configuration config = new Configuration();
+        bc.setup(config);
+        bc.start();
+        //Catch CTRL-C
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                System.out.println("Final message count:"+bc.stop());
+            }
+        });
+        //Loop printing count every second
+        while(true) {
+            System.out.println("Messages to date:"+bc.getTotalMessages());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {} 
+        }
+    }
+    /**
      * A child consumer, allows for multi-threaded consumption.
      * @author starchmd
      */
@@ -80,6 +114,7 @@ public class BandwidthConsumer implements Aggregator {
 
         @Override
         public void run() {
+            messages = 0;
             //Set termination flag safely
             boolean terminate = false;
             synchronized (this) {
