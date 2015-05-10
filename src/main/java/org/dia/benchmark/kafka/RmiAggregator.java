@@ -16,35 +16,19 @@ the License.
  */
 package org.dia.benchmark.kafka;
 
-import java.io.IOException;
+import java.rmi.Remote;
 
-import org.dia.benchmark.kafka.Configuration;
+import org.dia.benchmark.kafka.Aggregator;
 
 /**
- * Interface used to support aggregation of measured data.
+ * Interface used to support aggregation of measured data over rmi.
  *
  * @author starchmd
  */
-public interface Aggregator {
-    /**
-     * Setup function to supply configuration
-     * @param config - configuration object
-     */
-    public void setup(Configuration config) throws IOException;
-    /**
-     * Start the aggregator and its internal aggregation.
-     */
-    public void start() throws IOException;
-
-    /**
-     * Stop the aggregator and report the message count.
-     * @return - number of messages counted.
-     */
-    public long stop() throws IOException;
-
-    /**
-     * Get the current count of this aggregator
-     * @return - number of messages to-date.
-     */
-    public long count() throws IOException;
+public interface RmiAggregator extends Remote,Aggregator {
+	/**
+	 * This method spawns an aggregator using given clazz
+	 * @param clazz - class to instantiate
+	 */
+	void spawn(Class<?> clazz) throws Exception;
 }

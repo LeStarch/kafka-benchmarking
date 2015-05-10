@@ -68,10 +68,8 @@ public class BandwidthConsumer implements Aggregator {
         }
         return total;
     }
-    /**
-     * Get total message count (to date)
-     */
-    public long getTotalMessages() {
+    @Override
+    public long count() {
         long total = 0;
         for (int i = 0; i < children.length; i++) {
             total += children[i].getMessageCount();
@@ -96,7 +94,7 @@ public class BandwidthConsumer implements Aggregator {
         });
         //Loop printing count every second
         while(true) {
-            System.out.println("Messages to date:"+bc.getTotalMessages());
+            System.out.println("Messages to date:"+bc.count());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {} 

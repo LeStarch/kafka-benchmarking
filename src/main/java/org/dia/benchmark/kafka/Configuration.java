@@ -48,6 +48,17 @@ public class Configuration {
     //Shared prefix of all topics, topics will look like <TOPIC_PREFIX>#
     public String TOPIC_PREFIX = "TOPIC_";
 
+    //Node configurations
+    public String[] CONSUMER_NODES = {"localhost"};
+    public String[] PRODUCER_NODES = {"localhost"};
+
+    //How often to report
+    public int REPORTING_PERIOD = 1000;
+    //Size of messages
+    public long MESSAGE_SIZE = 1024*1024;
+    
+    public int RMI_PORT = 8071;
+    
     /**
      * Produce Kafka consumer properties
      * @return Kafka Consumer Config
