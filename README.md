@@ -11,6 +11,25 @@ Code Base
 
 Java is choosen as the language of choice for this project because OODT's primary language is Java and thus java should be used to ensure compatibility with OODT.
 
+To Build
+--------
+
+This project uses maven and pom.xml files to build. It compiles the java source code, constructs a jar, and packages all dependencies into a .tar.gz archive.
+
+```
+mvn install
+```
+
+To Deploy
+---------
+
+To deploy, untar the archive and run within the extracted directory.
+
+```
+tar -xzf target/*.tar.gz
+```
+
+
 License
 -------
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
