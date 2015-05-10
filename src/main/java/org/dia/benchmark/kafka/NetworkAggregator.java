@@ -16,7 +16,6 @@ the License.
  */
 package org.dia.benchmark.kafka;
 
-import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -34,8 +33,10 @@ public class NetworkAggregator implements Aggregator {
 
     /**
      * ctor
+     * @param config - configuration object used to find RMI registry port
      * @param clazz - aggregator class to handle
      * @param host - hostname to connect to
+     * @throws Exception - exception is thrown connecting to RMI
      */
     public NetworkAggregator(Configuration config,Class<?> clazz, String host) throws Exception {
     	 if (System.getSecurityManager() == null) {
@@ -46,19 +47,19 @@ public class NetworkAggregator implements Aggregator {
     }
 
     @Override
-    public void setup(Configuration config) throws IOException {
+    public void setup(Configuration config) throws Exception {
         child.setup(config);
     }
     @Override
-    public void start() throws IOException {
+    public void start() throws Exception {
         child.start();
     }
     @Override
-    public long stop() throws IOException {
+    public long stop() throws Exception {
         return child.stop();
     }
     @Override
-    public long count() throws IOException {
+    public long count() throws Exception {
         return child.count();
     }
 }

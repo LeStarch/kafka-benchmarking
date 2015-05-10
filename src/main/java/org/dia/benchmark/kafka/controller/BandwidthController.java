@@ -42,7 +42,7 @@ public class BandwidthController implements Aggregator {
     long lastRecv = 0;
 
     @Override
-    public void setup(Configuration config) {
+    public void setup(Configuration config) throws Exception {
         this.config = config;
         consumers = new Aggregator[config.CONSUMER_NODES.length];
         producers = new Aggregator[config.PRODUCER_NODES.length];
@@ -52,12 +52,8 @@ public class BandwidthController implements Aggregator {
         Class<?> clazz = BandwidthConsumer.class;
         for (Aggregator[] array : aggregators) {
             for (int i = 0; i < array.length; i++) {
-            	try {
-            		array[i] = new NetworkAggregator(config,clazz,nodes[i]);
-            		array[i].setup(config);
-            	} catch (Exception e) {
-            		System.err.println("Error starting network aggregator: "+e);
-            	}
+                array[i] = new NetworkAggregator(config,clazz,nodes[i]);
+                array[i].setup(config);
             }
             nodes = config.PRODUCER_NODES;
 //            clazz = BandwidthProducer.class;
@@ -70,7 +66,7 @@ public class BandwidthController implements Aggregator {
         for (Aggregator agg : ArrayUtils.addAll(consumers,producers)) {
         	try {
         		agg.start();
-        	} catch (IOException e) {
+        	} catch (Exception e) {
         		System.err.println("Error starting: "+e);
         	}
         }
@@ -82,14 +78,14 @@ public class BandwidthController implements Aggregator {
         for (Aggregator producer : producers) {
         	try {
         		sent += producer.stop();
-        	} catch (IOException e) {
+        	} catch (Exception e) {
         		System.err.println("Error stopping: "+e);
         	}
         }
         for (Aggregator consumer : consumers) {
         	try {
         		recv += consumer.stop();
-        	} catch (IOException e) {
+        	} catch (Exception e) {
         		System.err.println("Error stopping: "+e);
         	}
         }
@@ -104,14 +100,14 @@ public class BandwidthController implements Aggregator {
         for (Aggregator producer : producers) {
         	try {
         		sent += producer.count();
-        	} catch (IOException e) {
+        	} catch (Exception e) {
         		System.err.println("Error retreiving counts: "+e);
         	}
         }
         for (Aggregator consumer : consumers) {
         	try {
         		recv += consumer.count();
-        	} catch (IOException e) {
+        	} catch (Exception e) {
         		System.err.println("Error retreiving counts: "+e);
         	}      		
         }
@@ -141,22 +137,38 @@ public class BandwidthController implements Aggregator {
      * @param args - command line arguments
      */
     public static void main(String[] args) {
-        final BandwidthController bc = new BandwidthController();
-        final Configuration config = new Configuration();
-        bc.setup(config);
-        bc.start();
-        //Catch CTRL-C
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                bc.stop();
+        Configuration config = null;
+        try {
+            config = new Configuration(Configuration.getProperties());
+        } catch (IOException e) {
+            System.err.println("Error properties file does not exist."+e);
+            System.exit(-1);
+        } catch (IllegalAccessException e) {
+            System.err.println("Illegal access exception in Configuration.java(this)"+e);
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        try {
+            final BandwidthController bc = new BandwidthController();
+            bc.setup(config);
+            bc.start();
+            //Catch CTRL-C
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    bc.stop();
+                }
+            });
+            //Loop printing count every second
+            while(true) {
+                bc.count();
+                try {
+                    Thread.sleep(config.REPORTING_PERIOD);
+                } catch (InterruptedException e) {} 
             }
-        });
-        //Loop printing count every second
-        while(true) {
-            bc.count();
-            try {
-                Thread.sleep(config.REPORTING_PERIOD);
-            } catch (InterruptedException e) {} 
+        } catch (Exception e) {
+            System.err.println("Exception reached top-level: "+e);
+            e.printStackTrace();
+            System.exit(-1);
         }
     }
 }

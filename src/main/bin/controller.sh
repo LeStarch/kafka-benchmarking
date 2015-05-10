@@ -5,4 +5,4 @@ then
 else
     JAVA=${JAVA_HOME}/bin/java
 fi
-${JAVA} -cp '../lib/*' org.dia.benchmark.kafka.controller.BandwidthController
+${JAVA} -cp '../lib/*' -Djava.security.policy=../etc/security.policy -DPROPERTY_FILE=../etc/benchmark.properties org.dia.benchmark.kafka.controller.BandwidthController

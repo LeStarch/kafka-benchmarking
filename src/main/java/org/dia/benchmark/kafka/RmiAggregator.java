@@ -29,6 +29,7 @@ public interface RmiAggregator extends Remote,Aggregator {
 	/**
 	 * This method spawns an aggregator using given clazz
 	 * @param clazz - class to instantiate
+     * @throws Exception - exception on spawning 
 	 */
 	void spawn(Class<?> clazz) throws Exception;
 }

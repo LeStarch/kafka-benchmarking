@@ -18,6 +18,10 @@ package org.dia.benchmark.kafka;
 
 import kafka.consumer.ConsumerConfig;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -58,7 +62,40 @@ public class Configuration {
     public long MESSAGE_SIZE = 1024*1024;
     
     public int RMI_PORT = 8071;
-    
+
+    //What property to check for location of property file
+    public static String PROPERTY_FILE_PROP = "PROPERTY_FILE";
+    /**
+     * Ctor -- overwrites configuration with properties
+     * @param properties - properties used to build config
+     * @throws IllegalAccessException - failed to set field
+     */
+    public Configuration(Properties properties) throws IllegalAccessException {
+        override(properties);
+    }
+    /**
+     * Overrides key and value inside this configuration
+     * @param properties - properties used to override configuration
+     * @throws IllegalAccessException - failed to set field
+     */
+    public void override(Properties properties) throws IllegalAccessException {
+        Field[] fields = this.getClass().getFields();
+        for (Field field : fields) {
+            if (properties.containsKey(field.getName()) && !Modifier.isStatic(field.getModifiers())) {
+                String val = properties.getProperty(field.getName());
+                if (field.getType().isArray()) {
+                    field.set(this,val.split(":"));
+                } else if (field.getType().equals(Integer.TYPE)) {
+                    field.setInt(this,Integer.parseInt(val));
+                } else if (field.getType().equals(Long.TYPE)) {
+                    field.setLong(this, Long.parseLong(val));
+                } else {
+                    field.set(this, properties.get(field.getName()));
+                }
+            }
+        }
+    }
+
     /**
      * Produce Kafka consumer properties
      * @return Kafka Consumer Config
@@ -83,5 +120,20 @@ public class Configuration {
         for (int i = 0; i < topic; i++)
             map.put(TOPIC_PREFIX+i, threadPreTopic);
         return map;
+    }
+    /**
+     * Get properties in this order: ENV VARS then Command Line properties then
+     * Properties File then Hardcoded Configuration
+     * Properties file set in command line property: PROPERTY_FILE
+     * @return constructed properties
+     * @throws IOException - thrown on failure to read file 
+     */
+    public static Properties getProperties() throws IOException {
+        String file = System.getProperty(PROPERTY_FILE_PROP);
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(file));
+        properties.putAll(System.getProperties());
+        properties.putAll(System.getenv());
+        return properties;
     }
 }

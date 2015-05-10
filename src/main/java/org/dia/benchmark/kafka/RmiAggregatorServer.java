@@ -43,19 +43,19 @@ public class RmiAggregatorServer implements RmiAggregator {
     }
 
     @Override
-    public void setup(Configuration config) throws IOException {
+    public void setup(Configuration config) throws Exception {
         child.setup(config);
     }
     @Override
-    public void start() throws IOException {
+    public void start() throws Exception {
         child.start();
     }
     @Override
-    public long stop() throws IOException {
+    public long stop() throws Exception {
         return child.stop();
     }
     @Override
-    public long count() throws IOException {
+    public long count() throws Exception {
         return child.count();
     }
     
@@ -68,12 +68,16 @@ public class RmiAggregatorServer implements RmiAggregator {
             System.setSecurityManager(new SecurityManager());
         }
         try {
+            Configuration config = new Configuration(Configuration.getProperties());
             RmiAggregator agg = new RmiAggregatorServer();
             RmiAggregator stub = (RmiAggregator) UnicastRemoteObject.exportObject(agg,0);
-            Registry registry = LocateRegistry.getRegistry(new Configuration().RMI_PORT);
+            Registry registry = LocateRegistry.getRegistry(config.RMI_PORT);
             registry.rebind(BIND_NAME, stub);
-        } catch (Exception e) {
-            System.err.println("Exception:"+e);
+        } catch (IllegalAccessException e) {
+            System.err.println("Illegal access exception: "+e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("I/O exception: "+e);
             e.printStackTrace();
         }
     }

@@ -20,6 +20,7 @@ import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -82,8 +83,16 @@ public class BandwidthConsumer implements Aggregator {
      * @param args - command line arguments
      */
     public static void main(String[] args) {
+        Configuration config = null;
+        try {
+            config = new Configuration(Configuration.getProperties());
+        } catch (IOException e) {
+            System.err.println("Error properties file does not exist."+e);
+        } catch (IllegalAccessException e) {
+            System.err.println("Illegal access exception in Configuration.java(this)"+e);
+            e.printStackTrace();
+        }
         final BandwidthConsumer bc = new BandwidthConsumer();
-        Configuration config = new Configuration();
         bc.setup(config);
         bc.start();
         //Catch CTRL-C

@@ -51,6 +51,7 @@ the License.
       <outputDirectory>etc</outputDirectory>
       <includes>
         <include>benchmark.properties</include>
+        <include>security.policy</include>
       </includes>
     </fileSet>
     <fileSet>
