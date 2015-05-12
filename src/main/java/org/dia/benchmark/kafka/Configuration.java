@@ -20,6 +20,7 @@ import kafka.consumer.ConsumerConfig;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ import java.util.Properties;
  *
  * @author starchmd
  */
-public class Configuration {
+public class Configuration implements Serializable {
     //Number of consumers
     public int CONSUMER_COUNT = 1;
 
@@ -61,7 +62,7 @@ public class Configuration {
     //Size of messages
     public long MESSAGE_SIZE = 1024*1024;
     
-    public int RMI_PORT = 8071;
+    public int RMI_REGISTRY_PORT = 1099;
 
     //What property to check for location of property file
     public static String PROPERTY_FILE_PROP = "PROPERTY_FILE";

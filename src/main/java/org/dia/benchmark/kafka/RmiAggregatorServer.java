@@ -33,13 +33,13 @@ import org.dia.benchmark.kafka.Configuration;
  */
 public class RmiAggregatorServer implements RmiAggregator {
 
-	public static final String BIND_NAME = "RmiServer";
+    public static final String BIND_NAME = "RmiServer";
 
     Aggregator child;
     @Override
     public void spawn(Class<?> clazz) throws Exception {
-		Constructor<?> ctor = clazz.getConstructor();
-		child = (Aggregator)ctor.newInstance(new Object[] {});
+        Constructor<?> ctor = clazz.getConstructor();
+        child = (Aggregator)ctor.newInstance(new Object[] {});
     }
 
     @Override
@@ -58,7 +58,7 @@ public class RmiAggregatorServer implements RmiAggregator {
     public long count() throws Exception {
         return child.count();
     }
-    
+
     /**
      * Test main program.
      * @param args - command line arguments
@@ -71,7 +71,7 @@ public class RmiAggregatorServer implements RmiAggregator {
             Configuration config = new Configuration(Configuration.getProperties());
             RmiAggregator agg = new RmiAggregatorServer();
             RmiAggregator stub = (RmiAggregator) UnicastRemoteObject.exportObject(agg,0);
-            Registry registry = LocateRegistry.getRegistry(config.RMI_PORT);
+            Registry registry = LocateRegistry.getRegistry(config.RMI_REGISTRY_PORT);
             registry.rebind(BIND_NAME, stub);
         } catch (IllegalAccessException e) {
             System.err.println("Illegal access exception: "+e);

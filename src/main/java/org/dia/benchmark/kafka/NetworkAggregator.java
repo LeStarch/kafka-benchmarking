@@ -42,8 +42,10 @@ public class NetworkAggregator implements Aggregator {
     	 if (System.getSecurityManager() == null) {
              System.setSecurityManager(new SecurityManager());
          }
-         Registry registry = LocateRegistry.getRegistry(host, config.RMI_PORT);
-         child = (RmiAggregator) registry.lookup(RmiAggregatorServer.BIND_NAME);
+         Registry registry = LocateRegistry.getRegistry(host, config.RMI_REGISTRY_PORT);
+         RmiAggregator rmiAgg = (RmiAggregator) registry.lookup(RmiAggregatorServer.BIND_NAME);
+         rmiAgg.spawn(clazz);
+         child = rmiAgg;
     }
 
     @Override

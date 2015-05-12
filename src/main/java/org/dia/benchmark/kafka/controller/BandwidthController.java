@@ -90,7 +90,7 @@ public class BandwidthController implements Aggregator {
         	}
         }
         long end = System.nanoTime();
-        long time = this.start - end;
+        long time = end - this.start;
         printCriticalData(time,this.config.MESSAGE_SIZE,sent,recv);
         return 0;
     }
@@ -112,7 +112,7 @@ public class BandwidthController implements Aggregator {
         	}      		
         }
         long end = System.nanoTime();
-        long time = this.lastTime - end;
+        long time = end - this.lastTime;
         printCriticalData(time,this.config.MESSAGE_SIZE,sent-lastSent,recv-lastRecv);
         return 0;
     }
@@ -124,7 +124,7 @@ public class BandwidthController implements Aggregator {
      * @param recv - number of messages received in time window
      */
     private static void printCriticalData(long time, long size, long sent, long recv) {
-        System.out.println(String.format("Total time: %f Sent: %d Received: %d",time/1000000000,sent,recv));
+        System.out.println(String.format("Total time: %f Sent: %d Received: %d",(double)time/1000000000.0,sent,recv));
         long lost = sent-recv;
         System.out.println(String.format("Size: %dB Lost: %d(%f%%)",size,lost,(double)lost/(double)recv));
         System.out.println("----------------------------------------------------");
