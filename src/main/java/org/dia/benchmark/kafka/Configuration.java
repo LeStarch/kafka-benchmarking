@@ -26,6 +26,8 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class that holds configuration for the Kafka benchmarks.
@@ -33,6 +35,10 @@ import java.util.Properties;
  * @author starchmd
  */
 public class Configuration implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private static Logger log = Logger.getLogger(Configuration.class.getName());
+
     //Number of consumers
     public int CONSUMER_COUNT = 1;
 
@@ -55,7 +61,7 @@ public class Configuration implements Serializable {
 
     //Node configurations
     public String[] CONSUMER_NODES = {"localhost"};
-    public String[] PRODUCER_NODES = {"localhost"};
+    public String[] PRODUCER_NODES = {/*"localhost"*/};
 
     //How often to report
     public int REPORTING_PERIOD = 1000;
@@ -85,13 +91,17 @@ public class Configuration implements Serializable {
             if (properties.containsKey(field.getName()) && !Modifier.isStatic(field.getModifiers())) {
                 String val = properties.getProperty(field.getName());
                 if (field.getType().isArray()) {
+                    log.log(Level.FINE,String.format("Overriding %s as array with %s",field.getName(),val));
                     field.set(this,val.split(":"));
                 } else if (field.getType().equals(Integer.TYPE)) {
+                    log.log(Level.FINE,String.format("Overriding %s as int with %d",field.getName(),Integer.parseInt(val)));
                     field.setInt(this,Integer.parseInt(val));
                 } else if (field.getType().equals(Long.TYPE)) {
+                    log.log(Level.FINE,String.format("Overriding %s as long with %d",field.getName(),Long.parseLong(val)));
                     field.setLong(this, Long.parseLong(val));
                 } else {
-                    field.set(this, properties.get(field.getName()));
+                    log.log(Level.FINE,String.format("Overriding %s as string with %s",field.getName(),val));
+                    field.set(this, val);
                 }
             }
         }
@@ -118,8 +128,12 @@ public class Configuration implements Serializable {
      */
     public Map<String,Integer> getTopicThreadCounts(int topic,int threadPreTopic) {
         Map<String,Integer> map = new HashMap<String,Integer>();
-        for (int i = 0; i < topic; i++)
-            map.put(TOPIC_PREFIX+i, threadPreTopic);
+        log.log(Level.INFO,String.format("Setting up topics: %s[%d-%d] allowing %d threads.",TOPIC_PREFIX,0,topic,threadPreTopic));
+        for (int i = 0; i < topic; i++) {
+            String name = TOPIC_PREFIX+i;
+            log.log(Level.FINE,String.format("Creating topic: %s allowing %d.",name,threadPreTopic));
+            map.put(name, threadPreTopic);
+        }
         return map;
     }
     /**

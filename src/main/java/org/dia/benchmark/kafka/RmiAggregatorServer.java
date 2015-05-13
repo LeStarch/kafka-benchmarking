@@ -21,9 +21,12 @@ import java.lang.reflect.Constructor;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.dia.benchmark.kafka.Aggregator;
 import org.dia.benchmark.kafka.Configuration;
+import org.dia.benchmark.kafka.consumer.BandwidthConsumer;
 
 /**
  * This aggregator wraps another aggregator for network usage
@@ -33,6 +36,7 @@ import org.dia.benchmark.kafka.Configuration;
  */
 public class RmiAggregatorServer implements RmiAggregator {
 
+    public static final Logger log = Logger.getLogger(RmiAggregatorServer.class.getName());
     public static final String BIND_NAME = "RmiServer";
 
     Aggregator child;
@@ -44,18 +48,25 @@ public class RmiAggregatorServer implements RmiAggregator {
 
     @Override
     public void setup(Configuration config) throws Exception {
+        log.log(Level.INFO, "Setting up RMI aggregator");
         child.setup(config);
+        if (child instanceof BandwidthConsumer) {
+            new Thread(new BandwidthConsumer.Monitor(child)).start();
+        }
     }
     @Override
     public void start() throws Exception {
+        log.log(Level.INFO, "Starting RMI aggregator");
         child.start();
     }
     @Override
     public long stop() throws Exception {
+        log.log(Level.INFO, "Stoping RMI aggregator");
         return child.stop();
     }
     @Override
     public long count() throws Exception {
+        log.log(Level.INFO, "Counting RMI aggregator");
         return child.count();
     }
 

@@ -63,6 +63,7 @@ public class BandwidthController implements Aggregator {
     @Override
     public void start() {
         start = System.nanoTime();
+        lastTime = start;
         for (Aggregator agg : ArrayUtils.addAll(consumers,producers)) {
         	try {
         		agg.start();
@@ -113,7 +114,8 @@ public class BandwidthController implements Aggregator {
         }
         long end = System.nanoTime();
         long time = end - this.lastTime;
-        printCriticalData(time,this.config.MESSAGE_SIZE,sent-lastSent,recv-lastRecv);
+        printCriticalData(((double)time)/1000000000.0,this.config.MESSAGE_SIZE,sent-lastSent,recv-lastRecv);
+        lastSent=sent; lastRecv=recv; lastTime = end;
         return 0;
     }
     /**
@@ -123,14 +125,16 @@ public class BandwidthController implements Aggregator {
      * @param sent - number of messages sent in time window
      * @param recv - number of messages received in time window
      */
-    private static void printCriticalData(long time, long size, long sent, long recv) {
-        System.out.println(String.format("Total time: %f Sent: %d Received: %d",(double)time/1000000000.0,sent,recv));
+    private static void printCriticalData(double time, long size, long sent, long recv) {
+        System.out.println("-----------------------------------------------------");
+        System.out.println(String.format("Total time: %f Sent: %d Received: %d",time,sent,recv));
         long lost = sent-recv;
         System.out.println(String.format("Size: %dB Lost: %d(%f%%)",size,lost,(double)lost/(double)recv));
-        System.out.println("----------------------------------------------------");
+        System.out.println("-   -   -   -   -   -   -   -   -   -   -   -   -   -");
         System.out.println(String.format("Bandwidth(sent): %fB/s Bandwidth(received): %fB/s",
                            (double)(size*sent)/(double)time,
                            (double)(size*recv)/(double)time));
+        System.out.println("-----------------------------------------------------");
     }
     /**
      * Test main program.

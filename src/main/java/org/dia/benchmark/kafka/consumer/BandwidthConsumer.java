@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.dia.benchmark.kafka.Aggregator;
 import org.dia.benchmark.kafka.Configuration;
@@ -36,20 +38,24 @@ import org.dia.benchmark.kafka.Configuration;
  */
 public class BandwidthConsumer implements Aggregator {
 
+    public static final Logger log = Logger.getLogger(BandwidthConsumer.class.getName());
+
     Child[] children = null;
     Executor executor;
 
     @Override
     public void setup(Configuration config) {
-        
         children = new Child[config.CONSUMER_COUNT];
         executor = Executors.newFixedThreadPool(children.length);
-        
+        log.log(Level.INFO, String.format("Starting %d consumers", config.CONSUMER_COUNT));        
         ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(config.getKafkaConsumerProperties());
         Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = consumer.createMessageStreams(config.getTopicThreadCounts(config.TOPIC_COUNT, config.CONSUMER_COUNT/config.TOPIC_COUNT));
         for (int i = 0; i < children.length; i++) {
+            String name = config.TOPIC_PREFIX+(i/config.TOPIC_COUNT);
+            int index = i%config.TOPIC_COUNT;
+            log.log(Level.INFO, String.format("Starting child %d on topic %s with stream index %d", i,name,index));
             children[i] = new Child();
-            children[i].setup(messageStreams.get(config.TOPIC_PREFIX+(i/config.TOPIC_COUNT)).get(i%config.TOPIC_COUNT));
+            children[i].setup(messageStreams.get(name).get(index));
         }
     }
 
@@ -94,19 +100,41 @@ public class BandwidthConsumer implements Aggregator {
         }
         final BandwidthConsumer bc = new BandwidthConsumer();
         bc.setup(config);
+        Monitor m = new Monitor(bc);
         bc.start();
-        //Catch CTRL-C
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                System.out.println("Final message count:"+bc.stop());
+        m.run();
+    }
+    
+    public static class Monitor implements Runnable {
+        private Aggregator aggor;
+        /**
+         * ctor
+         * @param agg - BandwidthConsumer to monitor
+         */
+        public Monitor(Aggregator agg) {
+            this.aggor = agg;
+            //Catch CTRL-C
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    try {
+                        log.log(Level.INFO,String.format("Final message count: %d",aggor.stop()));
+                    } catch (Exception e) {log.log(Level.INFO, "Exception caught: "+e);}
+                }
+            });
+        }
+        @Override
+        public void run() {
+            while(true) {
+                try {
+                    log.log(Level.INFO,String.format("Current message count: %d",aggor.count()));
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    log.log(Level.WARNING,"Exception caught while monitoring: "+e);
+                    e.printStackTrace();
+                }
             }
-        });
-        //Loop printing count every second
-        while(true) {
-            System.out.println("Messages to date:"+bc.count());
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {} 
         }
     }
     /**
@@ -121,6 +149,7 @@ public class BandwidthConsumer implements Aggregator {
 
         @Override
         public void run() {
+            log.log(Level.INFO,String.format("Child(%s) starting to run",Thread.currentThread().getName()));
             messages = 0;
             //Set termination flag safely
             boolean terminate = false;
@@ -140,6 +169,7 @@ public class BandwidthConsumer implements Aggregator {
          * @param stream - KafkaStream to read from
          */
         public void setup(KafkaStream<byte[], byte[]> stream) {
+            log.log(Level.INFO,String.format("Child with client id: %s on stream %s", stream.clientId(),stream.toString()));
             iterator = stream.iterator();
         }
         /**
@@ -161,6 +191,7 @@ public class BandwidthConsumer implements Aggregator {
          * @return count of messages cosumed
          */
         private long consume() {
+            log.log(Level.INFO,String.format("Child(%s) consuming message",Thread.currentThread().getName()));
             if (iterator.hasNext()) {
                 iterator.next();
                 return 1;
