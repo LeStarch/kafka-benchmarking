@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 public class Configuration implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static Logger log = Logger.getLogger(Configuration.class.getName());
+    private static final Logger log = Logger.getLogger(Configuration.class.getName());
 
     //Number of consumers
     public int CONSUMER_COUNT = 1;
@@ -47,14 +47,16 @@ public class Configuration implements Serializable {
 
     //Number of topics
     public int TOPIC_COUNT = 1;
-    
+    public int TOPIC_INDEX = 0;
+    public int THREADS_PRE_TOPIC = 1;
+
     //Kafka config
     public String GROUP_ID = "CosumerGroup";
 
     //Zookeeper properties
     public String ZOOKEEPER_CONNECT = "localhost:2181";
-    public int ZOOKEEPER_SYNC_TIME_MS = 200;
-    public int ZOOKEEPER_SESSION_TIMEOUT_MS = 400;
+    public int ZOOKEEPER_SYNC_TIME_MS = 2000;
+    public int ZOOKEEPER_SESSION_TIMEOUT_MS = 4000;
     
     //Shared prefix of all topics, topics will look like <TOPIC_PREFIX>#
     public String TOPIC_PREFIX = "TOPIC_";
@@ -126,14 +128,11 @@ public class Configuration implements Serializable {
      * @param threadPreTopic - number of threads per topic
      * @return map of topic name to thread count
      */
-    public Map<String,Integer> getTopicThreadCounts(int topic,int threadPreTopic) {
+    public Map<String,Integer> getTopicThreadCounts(int topic) {
+        String name = TOPIC_PREFIX+TOPIC_INDEX;
+        log.log(Level.FINE,String.format("Setting up topic: %s allowing %d.",name,THREADS_PRE_TOPIC));
         Map<String,Integer> map = new HashMap<String,Integer>();
-        log.log(Level.INFO,String.format("Setting up topics: %s[%d-%d] allowing %d threads.",TOPIC_PREFIX,0,topic,threadPreTopic));
-        for (int i = 0; i < topic; i++) {
-            String name = TOPIC_PREFIX+i;
-            log.log(Level.FINE,String.format("Creating topic: %s allowing %d.",name,threadPreTopic));
-            map.put(name, threadPreTopic);
-        }
+        map.put(name, THREADS_PRE_TOPIC);
         return map;
     }
     /**

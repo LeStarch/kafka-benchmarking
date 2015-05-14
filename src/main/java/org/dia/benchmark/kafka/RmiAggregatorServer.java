@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 
 import org.dia.benchmark.kafka.Aggregator;
 import org.dia.benchmark.kafka.Configuration;
-import org.dia.benchmark.kafka.consumer.BandwidthConsumer;
 
 /**
  * This aggregator wraps another aggregator for network usage
@@ -36,7 +35,7 @@ import org.dia.benchmark.kafka.consumer.BandwidthConsumer;
  */
 public class RmiAggregatorServer implements RmiAggregator {
 
-    public static final Logger log = Logger.getLogger(RmiAggregatorServer.class.getName());
+    private static final Logger log = Logger.getLogger(RmiAggregatorServer.class.getName());
     public static final String BIND_NAME = "RmiServer";
 
     Aggregator child;
@@ -50,9 +49,7 @@ public class RmiAggregatorServer implements RmiAggregator {
     public void setup(Configuration config) throws Exception {
         log.log(Level.INFO, "Setting up RMI aggregator");
         child.setup(config);
-        if (child instanceof BandwidthConsumer) {
-            new Thread(new BandwidthConsumer.Monitor(child)).start();
-        }
+        new Thread(new BandwidthAggregator.Monitor(child)).start();
     }
     @Override
     public void start() throws Exception {
