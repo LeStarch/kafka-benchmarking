@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This consumer measures bandwidth as it consumes messages.
+ * This aggregator (consumer,producer) measures bandwidth as it handles messages.
  *
  * @author starchmd
  */

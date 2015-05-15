@@ -49,7 +49,9 @@ public class RmiAggregatorServer implements RmiAggregator {
     public void setup(Configuration config) throws Exception {
         log.log(Level.INFO, "Setting up RMI aggregator");
         child.setup(config);
-        new Thread(new BandwidthAggregator.Monitor(child)).start();
+        if (config.USE_MONITOR.equalsIgnoreCase("true")) {
+            new Thread(new BandwidthAggregator.Monitor(child)).start();
+        }
     }
     @Override
     public void start() throws Exception {
@@ -68,7 +70,7 @@ public class RmiAggregatorServer implements RmiAggregator {
     }
 
     /**
-     * Test main program.
+     * Network main program.
      * @param args - command line arguments
      */
     public static void main(String[] args) {

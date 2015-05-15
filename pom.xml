@@ -91,11 +91,6 @@ the License.
                 <descriptors>
                   <descriptor>src/main/assembly/assembly.xml</descriptor>
                 </descriptors>
-                <!--archive>
-                  <manifest>
-                    <mainClass>org.apache.oodt.cas.resource.system.XmlRpcResourceManagerClient</mainClass>
-                  </manifest>
-                </archive-->
               </configuration>
               <executions>
                 <execution>

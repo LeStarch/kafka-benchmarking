@@ -46,11 +46,11 @@ public class Configuration implements Serializable {
     //Number of producers
     public int PRODUCER_COUNT = 1;
 
+    public String USE_MONITOR = "true";
     //Number of topics
     public int TOPIC_COUNT = 1;
     public int TOPIC_INDEX = 0;
     public int THREADS_PER_TOPIC = 1;
-    public int NUM_MESSAGES = 1000;
     //Kafka config
     public String GROUP_ID = "CosumerGroup";
 
@@ -64,31 +64,31 @@ public class Configuration implements Serializable {
 
     //Node configurations
     public String[] CONSUMER_NODES = {"localhost"};
-    public String[] PRODUCER_NODES = {/*"localhost"*/};
-    public String[] BROKER_NODES = {"localhost:9092","localhost:9093"};
+    public String[] PRODUCER_NODES = {"localhost"};
+    private String[] BROKER_NODES = {"localhost:9092","localhost:9093"};
 
     //ProducerConfig
-   public String BOOTSTRAP_SERVERS_CONFIG = StringUtils.join(BROKER_NODES,",");
-   public int BATCH_SIZE_CONFIG = 0;  //Batch size in bytes, default 16384
-   public String ACKS_CONFIG = "0";   // 0 = none, 1 = write locally no waiting, all = full sync
-   public int TIMEOUT_CONFIG = 30000; // Wait for ACK time in ms
-   public long BUFFER_MEMORY_CONFIG = 33554432;   //Total memory in bytes the producer can use to buffer records
-   public String COMPRESSION_TYPE_CONFIG = "none";  //gzip, snappy also valid for batch compression
-   public int RETRIES_CONFIG = 0; //Can affect ordering if >0
-   public String VALUE_SERIALIZER_CLASS_CONFIG = "org.apache.kafka.common.serialization.ByteArraySerializer";
-   public String KEY_SERIALIZER_CLASS_CONFIG = "org.apache.kafka.common.serialization.StringSerializer";
-   public Boolean BLOCK_ON_BUFFER_FULL_CONFIG = true;  //Setting to false will cause full memory to throw an error rather than block records
-   public int RECEIVE_BUFFER_CONFIG = 32768;  //Size of TCP receive buffer to use when receiving
-   public int SEND_BUFFER_CONFIG = 131072;    //Size of TCP send buffer to use when sending
-   public int MAX_REQUEST_SIZE_CONFIG = 1048576;  //Max size of a request and record size.
-   public long LINGER_MS_CONFIG = 0;  //Delay in ms, to impose a spreading out of arriving records
-   public String CLIENT_ID_CONFIG = "RequestSourceName";   //Unused now, string passed to server when making requests, for debugging
-   public long RECONNECT_BACKOFF_MS_CONFIG = 10;  //ms delay before attempting to reconnect to a given host
-   public long RETRY_BACKOFF_MS_CONFIG = 100; //ms delay before retrying a produce request to a given topic partition
-   public long METRICS_SAMPLE_WINDOW_MS_CONFIG = 30000;   //ms metric collection window before overwrite
-   public int METRICS_NUM_SAMPLES_CONFIG = 2; //Number of samples maintained to compute metrics
-   public long METADATA_MAX_AGE_CONFIG = 300000;   //ms delay between forced metadata refreshes to discover new leaders/brokers/partitions
-   public long METADATA_FETCH_TIMEOUT_CONFIG = 60000; //ms Delay prior to throwing an exception when no metadata is received
+    public String BOOTSTRAP_SERVERS_CONFIG = StringUtils.join(BROKER_NODES,",");
+    public int BATCH_SIZE_CONFIG = 0;  //Batch size in bytes, default 16384
+    public String ACKS_CONFIG = "0";   // 0 = none, 1 = write locally no waiting, all = full sync
+    public int TIMEOUT_CONFIG = 30000; // Wait for ACK time in ms
+    public long BUFFER_MEMORY_CONFIG = 33554432;   //Total memory in bytes the producer can use to buffer records
+    public String COMPRESSION_TYPE_CONFIG = "none";  //gzip, snappy also valid for batch compression
+    public int RETRIES_CONFIG = 0; //Can affect ordering if >0
+    public String VALUE_SERIALIZER_CLASS_CONFIG = "org.apache.kafka.common.serialization.ByteArraySerializer";
+    public String KEY_SERIALIZER_CLASS_CONFIG = "org.apache.kafka.common.serialization.StringSerializer";
+    public Boolean BLOCK_ON_BUFFER_FULL_CONFIG = true;  //Setting to false will cause full memory to throw an error rather than block records
+    public int RECEIVE_BUFFER_CONFIG = 32768;  //Size of TCP receive buffer to use when receiving
+    public int SEND_BUFFER_CONFIG = 131072;    //Size of TCP send buffer to use when sending
+    public int MAX_REQUEST_SIZE_CONFIG = 1048576;  //Max size of a request and record size.
+    public long LINGER_MS_CONFIG = 0;  //Delay in ms, to impose a spreading out of arriving records
+    public String CLIENT_ID_CONFIG = "RequestSourceName";   //Unused now, string passed to server when making requests, for debugging
+    public long RECONNECT_BACKOFF_MS_CONFIG = 10;  //ms delay before attempting to reconnect to a given host
+    public long RETRY_BACKOFF_MS_CONFIG = 100; //ms delay before retrying a produce request to a given topic partition
+    public long METRICS_SAMPLE_WINDOW_MS_CONFIG = 30000;   //ms metric collection window before overwrite
+    public int METRICS_NUM_SAMPLES_CONFIG = 2; //Number of samples maintained to compute metrics
+    public long METADATA_MAX_AGE_CONFIG = 300000;   //ms delay between forced metadata refreshes to discover new leaders/brokers/partitions
+    public long METADATA_FETCH_TIMEOUT_CONFIG = 60000; //ms Delay prior to throwing an exception when no metadata is received
 
     //How often to report
     public int REPORTING_PERIOD = 1000;
