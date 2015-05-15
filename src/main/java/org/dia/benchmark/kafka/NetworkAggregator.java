@@ -19,9 +19,6 @@ package org.dia.benchmark.kafka;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import org.dia.benchmark.kafka.Aggregator;
-import org.dia.benchmark.kafka.Configuration;
-
 /**
  * This aggregator wraps another aggregator for network usage.
  *

@@ -20,6 +20,7 @@ package org.dia.benchmark.kafka.producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 
 //kafka-benchmarking imports
 import org.dia.benchmark.kafka.Configuration;
@@ -28,7 +29,10 @@ import org.dia.benchmark.kafka.BandwidthAggregator;
 //General imports
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Exception;
+import java.lang.String;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,20 +45,24 @@ import java.util.logging.Logger;
  */
 public class BandwidthProducer extends BandwidthAggregator {
 
-	private static final Logger log = Logger.getLogger(BandwidthProducer.class.getName());
+    private static final Logger log = Logger.getLogger(BandwidthProducer.class.getName());
+    Configuration config;
+    private KafkaProducer<byte[], byte[]> producer = null;
 
-	@Override
-	public void setup(Configuration config){
-		Properties props = new Properties();
-		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.BOOTSTRAP_SERVERS_CONFIG);
-		props.put(ProducerConfig.BATCH_SIZE_CONFIG, config.BATCH_SIZE_CONFIG);
-		props.put(ProducerConfig.ACKS_CONFIG, config.ACKS_CONFIG);
-		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG,config.BUFFER_MEMORY_CONFIG);
-		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, config.COMPRESSION_TYPE_CONFIG);
-		props.put(ProducerConfig.RETRIES_CONFIG, config.RETRIES_CONFIG);
-		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,config.VALUE_SERIALIZER_CLASS_CONFIG);
-		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.KEY_SERIALIZER_CLASS_CONFIG);
-		props.put(ProducerConfig.BLOCK_ON_BUFFER_FULL_CONFIG, config.BLOCK_ON_BUFFER_FULL_CONFIG);
+    private Exception sendException = null;
+
+    @Override
+    public void setup(Configuration config) {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.BOOTSTRAP_SERVERS_CONFIG);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, config.BATCH_SIZE_CONFIG);
+        props.put(ProducerConfig.ACKS_CONFIG, config.ACKS_CONFIG);
+        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.BUFFER_MEMORY_CONFIG);
+        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, config.COMPRESSION_TYPE_CONFIG);
+        props.put(ProducerConfig.RETRIES_CONFIG, config.RETRIES_CONFIG);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, config.VALUE_SERIALIZER_CLASS_CONFIG);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.KEY_SERIALIZER_CLASS_CONFIG);
+        props.put(ProducerConfig.BLOCK_ON_BUFFER_FULL_CONFIG, config.BLOCK_ON_BUFFER_FULL_CONFIG);
 
 		/*
 		//Settings that are available but not currently used/defaults are fine
@@ -72,48 +80,84 @@ public class BandwidthProducer extends BandwidthAggregator {
 		props.put(ProducerConfig.METADATA_FETCH_TIMEOUT_CONFIG,config.METADATA_FETCH_TIMEOUT_CONFIG);
 		*/
 
-		KafkaProducer<String, String> producer = new KafkaProducer<String, String>(props);
+        String name = config.TOPIC_PREFIX + config.TOPIC_INDEX;
+        log.log(Level.INFO, String.format("\nSetting up producer on topic %s with %d ###### threads", name, config.THREADS_PER_TOPIC));
+        producer = new KafkaProducer<byte[], byte[]>(props);
+        this.config = config;
+    }
 
-        //Generate message
-        int length = config.MESSAGE_SIZE;
-        byte[] bytes = new byte[length];
-        String bmessage = "";
-        InputStream is = null;
-
-        for (int i =0; i<config.NUM_MESSAGES; i++) {
-            try {
-                is = new BufferedInputStream(new FileInputStream("/dev/urandom"));
-                int off = 0;
-                is.read(bytes, off, length);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            try {
-                bmessage = new String(bytes, "UTF-8");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(config.TOPIC_PREFIX + config.TOPIC_INDEX, Integer.toString(i), bmessage);
-            producer.send(producerRecord);
-        }
-        producer.close();
-	}
     /**
-     * Consume a message, and return the count produced.
+     * Generate and send a message, close producer a message, and return 1 .
+     *
      * @return count of messages produced
      */
     public long act() {
-        log.log(Level.INFO,String.format("Thread(%s) producing message",Thread.currentThread().getName()));
-            return 1;
+
+        log.log(Level.INFO, String.format("\nThread(%s) producing message", Thread.currentThread().getName()));
+        //Read a message from /dev/urandom
+        int length = 1024;
+        //int length = config.MESSAGE_SIZE;
+        byte[] bytes = new byte[length];
+        byte[] key = {1};
+
+        InputStream is = null;
+
+        try {
+            is = new BufferedInputStream(new FileInputStream("/dev/urandom"));
+            int offset = 0;
+            is.read(bytes, offset, length);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {is.close();}
+            catch (Exception e) {}
         }
+
+        System.out.println("HERE1:");
+        ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<byte[], byte[]>(config.TOPIC_PREFIX + config.TOPIC_INDEX, key, bytes);
+        System.out.println("HERE2:");
+        producer.send(producerRecord,new HasSent());
+        System.out.println("HERE3:");
+        try {
+            detectException();
+        } catch (Exception e) {
+            log.warning("\nException while sending: "+e);
+            e.printStackTrace();
+        }
+        return 1;
+    }
+
+    private synchronized void detectException() throws IOException {
+        try {
+            if (this.sendException != null)
+                throw new IOException(this.sendException);
+        } finally {
+            this.sendException = null;
+        }
+    }
+
+    public long stop() {
+        long temp = super.stop();
+        producer.close();
+        return temp;
+    }
+
+
+    public class HasSent implements org.apache.kafka.clients.producer.Callback {
+
+        public void onCompletion(RecordMetadata metadata, Exception e) {
+//        public void onCompletion(RecordMetadata record, Exception e) {
+
+            synchronized (BandwidthProducer.this) {
+                System.out.println("HERE4:");
+
+                if (e != null) {
+                    BandwidthProducer.this.sendException = e;
+                    return;
+                }
+                count++;
+                System.out.println("Here for count: "+count);
+            }
+        }
+    }
 }

@@ -18,11 +18,13 @@ the License.
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.Properties;
+import java.util.PropertyPermission;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import org.dia.benchmark.kafka.Aggregator;
 /**
- * This consumer measures bandwidth as it consumes messages.
+ * This aggregator (consumer,producer) measures bandwidth as it handles messages.
  *
  * @author starchmd
  */
@@ -38,24 +40,24 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
 
     @Override
     public void start() {
-        log.log(Level.INFO, String.format("Starting instance of type %s",this.getClass().getName()));
+        log.log(Level.INFO, String.format("\nStarting instance of type %s",this.getClass().getName()));
         new Thread(this).start();
     }
 
     @Override
     public synchronized long stop() {
-        log.log(Level.INFO, String.format("Stoping instance of type %s",this.getClass().getName()));
+        log.log(Level.INFO, String.format("\nStopping instance of type %s",this.getClass().getName()));
         stop = true;
         return count;
     }
     @Override
     public synchronized long count() {
-        log.log(Level.FINER, String.format("Counting instance of type %s",this.getClass().getName()));
+        log.log(Level.FINER, String.format("\nCounting instance of type %s",this.getClass().getName()));
         return count;
     }
     @Override
     public void run() {
-        log.log(Level.INFO, String.format("Running thread %s of type %s",Thread.currentThread().getName(), this.getClass().getName()));
+        log.log(Level.INFO, String.format("\nRunning thread %s of type %s",Thread.currentThread().getName(), this.getClass().getName()));
         count = 0;
         //Set termination flag safely
         boolean terminate = false;
@@ -66,7 +68,7 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
             long ret = act();
             synchronized (this) {
                 terminate = stop;
-                count += ret;
+//                count += ret;
             }
         }
     }
@@ -81,8 +83,9 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
      */
     public static void main(String[] args) {
         Configuration config = null;
-        try {
-            config = new Configuration(Configuration.getProperties());
+       try {
+          config = new Configuration(Configuration.getProperties());
+
             Constructor<?> ctor = Class.forName(args[0]).getConstructor();
             Aggregator agg = (Aggregator)ctor.newInstance(new Object[] {});
             agg.setup(config);
@@ -90,13 +93,13 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
             agg.start();
             m.run();
         } catch (IOException e) {
-            System.err.println("Error properties file does not exist."+e);
+            System.err.println("\nError properties file does not exist."+e);
             e.printStackTrace();
         } catch (IllegalAccessException e) {
-            System.err.println("Illegal access exception in Configuration.java(this)"+e);
+            System.err.println("\nIllegal access exception in Configuration.java(this)"+e);
             e.printStackTrace();
         } catch (Exception e) {
-            System.err.println("Exception occured upon execution: "+e);
+            System.err.println("\nException occured upon execution: "+e);
             e.printStackTrace();
         }
     }
@@ -117,8 +120,8 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     try {
-                        log.log(Level.INFO,String.format("Final message count: %d",aggor.stop()));
-                    } catch (Exception e) {log.log(Level.INFO, "Exception caught: "+e);}
+                        log.log(Level.INFO,String.format("\nFinal message count: %d",aggor.stop()));
+                    } catch (Exception e) {log.log(Level.INFO, "\nException caught: "+e);}
                 }
             });
         }
@@ -126,12 +129,12 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
         public void run() {
             while(true) {
                 try {
-                    log.log(Level.INFO,String.format("Current message count: %d",aggor.count()));
+                    log.log(Level.INFO,String.format("\nCurrent message count: %d",aggor.count()));
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } catch (Exception e) {
-                    log.log(Level.WARNING,"Exception caught while monitoring: "+e);
+                    log.log(Level.WARNING,"\nException caught while monitoring: "+e);
                     e.printStackTrace();
                 }
             }

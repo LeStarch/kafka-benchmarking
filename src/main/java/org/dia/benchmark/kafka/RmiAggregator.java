@@ -18,8 +18,6 @@ package org.dia.benchmark.kafka;
 
 import java.rmi.Remote;
 
-import org.dia.benchmark.kafka.Aggregator;
-
 /**
  * Interface used to support aggregation of measured data over rmi.
  *

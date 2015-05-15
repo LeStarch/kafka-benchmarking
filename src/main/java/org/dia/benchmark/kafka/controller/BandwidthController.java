@@ -19,12 +19,11 @@ package org.dia.benchmark.kafka.controller;
 import java.io.IOException;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.dia.benchmark.kafka.Aggregator;
 import org.dia.benchmark.kafka.Configuration;
 import org.dia.benchmark.kafka.consumer.BandwidthConsumer;
-//import org.dia.benchmark.kafka.producer.BandwidthProducer;
+import org.dia.benchmark.kafka.producer.BandwidthProducer;
 import org.dia.benchmark.kafka.NetworkAggregator;
-
+import org.dia.benchmark.kafka.Aggregator;
 /**
  * This controller that runs the bandwidth-test.
  *
@@ -56,7 +55,7 @@ public class BandwidthController implements Aggregator {
                 array[i].setup(config);
             }
             nodes = config.PRODUCER_NODES;
-//            clazz = BandwidthProducer.class;
+            clazz = BandwidthProducer.class;
         }
     }
 
@@ -92,7 +91,7 @@ public class BandwidthController implements Aggregator {
         }
         long end = System.nanoTime();
         long time = end - this.start;
-        printCriticalData(time,this.config.MESSAGE_SIZE,sent,recv);
+        printCriticalData(((double)time)/1000000000.0,this.config.MESSAGE_SIZE,sent,recv);
         return 0;
     }
     @Override
@@ -127,9 +126,9 @@ public class BandwidthController implements Aggregator {
      */
     private static void printCriticalData(double time, long size, long sent, long recv) {
         System.out.println("-----------------------------------------------------");
-        System.out.println(String.format("Total time: %f Sent: %d Received: %d",time,sent,recv));
+        System.out.println(String.format("Run time: %f Sent: %d Received: %d",time,sent,recv));
         long lost = sent-recv;
-        System.out.println(String.format("Size: %dB Lost: %d(%f%%)",size,lost,(double)lost/(double)recv));
+        System.out.println(String.format("Size: %dB Lost: %d(%f%%)",size,lost,(double)lost/(double)sent));
         System.out.println("-   -   -   -   -   -   -   -   -   -   -   -   -   -");
         System.out.println(String.format("Bandwidth(sent): %fB/s Bandwidth(received): %fB/s",
                            (double)(size*sent)/(double)time,
