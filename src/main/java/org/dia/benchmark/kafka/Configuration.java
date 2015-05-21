@@ -68,19 +68,21 @@ public class Configuration implements Serializable {
     private String[] BROKER_NODES = {"localhost:9092","localhost:9093"};
 
     //ProducerConfig
+    public int RECEIVE_BUFFER_CONFIG = 1610612736;  //Size of TCP receive buffer to use when receiving
+    public int SEND_BUFFER_CONFIG = 1610612736;    //Size of TCP send buffer to use when sending
+    public int MAX_REQUEST_SIZE_CONFIG = 1610612736;  //Max size of a request and record size.
+    public long BUFFER_MEMORY_CONFIG = 1610612736;   //Total memory in bytes the producer can use to buffer records
+
+
     public String BOOTSTRAP_SERVERS_CONFIG = StringUtils.join(BROKER_NODES,",");
     public int BATCH_SIZE_CONFIG = 0;  //Batch size in bytes, default 16384
     public String ACKS_CONFIG = "0";   // 0 = none, 1 = write locally no waiting, all = full sync
     public int TIMEOUT_CONFIG = 30000; // Wait for ACK time in ms
-    public long BUFFER_MEMORY_CONFIG = 33554432;   //Total memory in bytes the producer can use to buffer records
     public String COMPRESSION_TYPE_CONFIG = "none";  //gzip, snappy also valid for batch compression
     public int RETRIES_CONFIG = 0; //Can affect ordering if >0
     public String VALUE_SERIALIZER_CLASS_CONFIG = "org.apache.kafka.common.serialization.ByteArraySerializer";
     public String KEY_SERIALIZER_CLASS_CONFIG = "org.apache.kafka.common.serialization.ByteArraySerializer";
     public Boolean BLOCK_ON_BUFFER_FULL_CONFIG = true;  //Setting to false will cause full memory to throw an error rather than block records
-    public int RECEIVE_BUFFER_CONFIG = 32768;  //Size of TCP receive buffer to use when receiving
-    public int SEND_BUFFER_CONFIG = 131072;    //Size of TCP send buffer to use when sending
-    public int MAX_REQUEST_SIZE_CONFIG = 1048576;  //Max size of a request and record size.
     public long LINGER_MS_CONFIG = 0;  //Delay in ms, to impose a spreading out of arriving records
     public String CLIENT_ID_CONFIG = "RequestSourceName";   //Unused now, string passed to server when making requests, for debugging
     public long RECONNECT_BACKOFF_MS_CONFIG = 10;  //ms delay before attempting to reconnect to a given host
@@ -90,11 +92,24 @@ public class Configuration implements Serializable {
     public long METADATA_MAX_AGE_CONFIG = 300000;   //ms delay between forced metadata refreshes to discover new leaders/brokers/partitions
     public long METADATA_FETCH_TIMEOUT_CONFIG = 60000; //ms Delay prior to throwing an exception when no metadata is received
 
+    //ConsumerConfig
+    public String SOCKET_RECEIVE_BUFFER_BYTES = "1610612736"; //Socket recieve buffer for network requests
+    public long SOCKET_TIMEOUT_MS = 30000;  //The socket timeout for network requests, see documentation for details
+    public int FETCH_MESSAGE_MAX_BYTES = 1610612736;    //Number of bytes of messages to try fetch for each topic partition per fetch request
+    public int NUM_CONSUMER_FETCHERS = 1;   //Number of fetch threads used to fetch data
+    public boolean AUTO_COMMIT_ENABLE = true;   //Periodically commit to ZK the offset of messages already fetched
+    public String AUTO_COMMITS_INTERVAL_MS = "60000";   //Frequency in ms that ofsets are committed to ZK
+    public int QUEUED_MAX_MESSAGE_CHUNKS = 2;   //Max number of message chunks buffered.  Each chunk can be up to FETCH.MESSAGES.MAX.BYTES
+    public int FETCH_MIN_BYTES = 805306368;    //Default is 1, currently 750MB.  Min amount of data to be fetched on a request - waits for data if not available
+    public int FETCH_WAIT_MAX_MS = 1000;    //Longest server will block if min data is not available
+    public String PARTITION_ASSIGNMENT_STRATEGY = "range";  // "range" or "roundrobbin" --Strategy for partition assignment to consumer streams
+
+
     //How often to report
     public int REPORTING_PERIOD = 1000;
     //Size of messages
     //public int MESSAGE_SIZE = 4096 * 1024*1024;
-    public int MESSAGE_SIZE = 1048300;
+    public int MESSAGE_SIZE = 104857;//6
 
     public int RMI_REGISTRY_PORT = 1099;
 
@@ -145,7 +160,9 @@ public class Configuration implements Serializable {
         props.put("group.id", GROUP_ID);
         props.put("zookeeper.session.timeout.ms", ""+ZOOKEEPER_SESSION_TIMEOUT_MS);
         props.put("zookeeper.sync.time.ms", ""+ZOOKEEPER_SYNC_TIME_MS);
-        props.put("auto.commit.interval.ms", "1000");
+        props.put("auto.commit.interval.ms", AUTO_COMMITS_INTERVAL_MS);
+        //props.put("auto.commit.interval.ms", "1000");
+        props.put("socket.receive.buffer.bytes",SOCKET_RECEIVE_BUFFER_BYTES);
         return new ConsumerConfig(props);
     }
     /**
@@ -168,11 +185,11 @@ public class Configuration implements Serializable {
      * @throws IOException - thrown on failure to read file 
      */
     public static Properties getProperties() throws IOException {
-     //   String file = System.getProperty(PROPERTY_FILE_PROP);
+        String file = System.getProperty(PROPERTY_FILE_PROP);
         Properties properties = new Properties();
-        //properties.load(new FileInputStream(file));
-       // properties.putAll(System.getProperties());
-        //properties.putAll(System.getenv());
+        properties.load(new FileInputStream(file));
+        properties.putAll(System.getProperties());
+        properties.putAll(System.getenv());
         return properties;
     }
 }

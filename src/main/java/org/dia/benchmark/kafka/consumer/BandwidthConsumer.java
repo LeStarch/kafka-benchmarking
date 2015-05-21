@@ -20,6 +20,7 @@ import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 
+import java.lang.System;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -40,13 +41,12 @@ public class BandwidthConsumer extends BandwidthAggregator {
 
     @Override
     public void setup(Configuration config) {
-        ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(config.getKafkaConsumerProperties());
-
-        Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = consumer.createMessageStreams(config.getTopicThreadCounts(config.TOPIC_COUNT));
 
         String name = config.TOPIC_PREFIX+config.TOPIC_INDEX;
-
         log.log(Level.INFO, String.format("Setting up consumer on topic %s with %d threads",name,config.THREADS_PER_TOPIC));
+
+        ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(config.getKafkaConsumerProperties());
+        Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = consumer.createMessageStreams(config.getTopicThreadCounts(config.TOPIC_COUNT));
 
         iterator = messageStreams.get(name).get(0).iterator();
     }
@@ -56,11 +56,11 @@ public class BandwidthConsumer extends BandwidthAggregator {
      */
     public void  act() {
         log.log(Level.INFO,String.format("Thread(%s) consuming message",Thread.currentThread().getName()));
-        if (iterator.hasNext()) {
 
+        if (iterator.hasNext()) {
             byte[] message = iterator.next().message();
-//            log.log(Level.FINE, String.format("Length of message recievd:"+message.length));
-            System.out.println("Here's the message:" + message.length);
+            log.log(Level.FINE, String.format("Length of message recievd:"+message.length));
+            System.out.prinln("Recieved message length: "+message.length);
             synchronized (this) {
                 count++;
             }
