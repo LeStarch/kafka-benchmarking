@@ -93,8 +93,9 @@ public class Configuration implements Serializable {
     //How often to report
     public int REPORTING_PERIOD = 1000;
     //Size of messages
-    public int MESSAGE_SIZE = 4096 * 1024*1024;
-    
+    //public int MESSAGE_SIZE = 4096 * 1024*1024;
+    public int MESSAGE_SIZE = 1048300;
+
     public int RMI_REGISTRY_PORT = 1099;
 
     //What property to check for location of property file

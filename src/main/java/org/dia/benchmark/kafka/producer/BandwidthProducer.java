@@ -91,12 +91,13 @@ public class BandwidthProducer extends BandwidthAggregator {
      *
      * @return count of messages produced
      */
-    public long act() {
+    public  void act() {
 
         log.log(Level.INFO, String.format("\nThread(%s) producing message", Thread.currentThread().getName()));
+
         //Read a message from /dev/urandom
-        int length = 1024;
-        //int length = config.MESSAGE_SIZE;
+        int length = config.MESSAGE_SIZE;
+        System.out.println("The length of message is: "+length);
         byte[] bytes = new byte[length];
         byte[] key = {1};
 
@@ -113,18 +114,16 @@ public class BandwidthProducer extends BandwidthAggregator {
             catch (Exception e) {}
         }
 
-        System.out.println("HERE1:");
         ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<byte[], byte[]>(config.TOPIC_PREFIX + config.TOPIC_INDEX, key, bytes);
-        System.out.println("HERE2:");
+        byte[] Mlength = producerRecord.value();
+        System.out.println("Here's the prod messg length:" + Mlength.length);
         producer.send(producerRecord,new HasSent());
-        System.out.println("HERE3:");
         try {
             detectException();
         } catch (Exception e) {
             log.warning("\nException while sending: "+e);
             e.printStackTrace();
         }
-        return 1;
     }
 
     private synchronized void detectException() throws IOException {
@@ -149,14 +148,12 @@ public class BandwidthProducer extends BandwidthAggregator {
 //        public void onCompletion(RecordMetadata record, Exception e) {
 
             synchronized (BandwidthProducer.this) {
-                System.out.println("HERE4:");
 
                 if (e != null) {
                     BandwidthProducer.this.sendException = e;
                     return;
                 }
                 count++;
-                System.out.println("Here for count: "+count);
             }
         }
     }

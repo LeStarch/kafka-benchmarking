@@ -65,10 +65,9 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
             terminate = stop;
         }
         while (!terminate) {
-            long ret = act();
+            act();
             synchronized (this) {
                 terminate = stop;
-//                count += ret;
             }
         }
     }
@@ -76,7 +75,7 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
      * Perform the action specific to this class
      * @return number of messages processed
      */
-    public abstract long act();
+    public abstract void act();
     /**
      * Test main program.
      * @param args - command line arguments
@@ -85,6 +84,9 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
         Configuration config = null;
        try {
           config = new Configuration(Configuration.getProperties());
+
+           System.out.println("######The max message size: "+config.MAX_REQUEST_SIZE_CONFIG);
+           System.out.println("######The message size: "+config.MESSAGE_SIZE);
 
             Constructor<?> ctor = Class.forName(args[0]).getConstructor();
             Aggregator agg = (Aggregator)ctor.newInstance(new Object[] {});

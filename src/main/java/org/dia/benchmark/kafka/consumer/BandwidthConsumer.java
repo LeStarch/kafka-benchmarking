@@ -54,14 +54,16 @@ public class BandwidthConsumer extends BandwidthAggregator {
      * Consume a message, and return the count consumed.
      * @return count of messages cosumed
      */
-    public long act() {
+    public void  act() {
         log.log(Level.INFO,String.format("Thread(%s) consuming message",Thread.currentThread().getName()));
         if (iterator.hasNext()) {
-            iterator.next();
-            count ++;
-            System.out.println("Got a message, count: "+count);
-            return 1;
+
+            byte[] message = iterator.next().message();
+//            log.log(Level.FINE, String.format("Length of message recievd:"+message.length));
+            System.out.println("Here's the message:" + message.length);
+            synchronized (this) {
+                count++;
+            }
         }
-        return 0;
     }
 }
