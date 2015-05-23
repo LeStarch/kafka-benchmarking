@@ -18,8 +18,6 @@ the License.
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.Properties;
-import java.util.PropertyPermission;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.dia.benchmark.kafka.Aggregator;
@@ -43,7 +41,6 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
         log.log(Level.INFO, String.format("\nStarting instance of type %s",this.getClass().getName()));
         new Thread(this).start();
     }
-
     @Override
     public synchronized long stop() {
         log.log(Level.INFO, String.format("\nStopping instance of type %s",this.getClass().getName()));
@@ -82,11 +79,12 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
      */
     public static void main(String[] args) {
         Configuration config = null;
-       try {
-          config = new Configuration(Configuration.getProperties());
+        try {
+            config = new Configuration(Configuration.getProperties());
 
-           System.out.println("######The max message size: "+config.MAX_REQUEST_SIZE_CONFIG);
-           System.out.println("######The message size: "+config.MESSAGE_SIZE);
+            
+            System.out.println("######The max message size: "+config.MAX_REQUEST_SIZE_CONFIG);
+            System.out.println("######The message size: "+config.MESSAGE_SIZE);
 
             Constructor<?> ctor = Class.forName(args[0]).getConstructor();
             Aggregator agg = (Aggregator)ctor.newInstance(new Object[] {});

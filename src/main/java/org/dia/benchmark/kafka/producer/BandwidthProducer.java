@@ -36,10 +36,9 @@ import java.lang.String;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
+import java.util.concurrent.ConcurrentLinkedQueue;
 /**
-  * This producer creates a stream of messeges according to parameters set in Configuration
+  * This producer creates a stream of messages according to parameters set in Configuration
   *
   * @author jwyngaard
  */
@@ -47,9 +46,9 @@ public class BandwidthProducer extends BandwidthAggregator {
 
     private static final Logger log = Logger.getLogger(BandwidthProducer.class.getName());
     Configuration config;
-    private KafkaProducer<byte[], byte[]> producer = null;
 
-    private Exception sendException = null;
+    private KafkaProducer<byte[], byte[]> producer = null;
+    private ConcurrentLinkedQueue<Exception> sendExceptions = new ConcurrentLinkedQueue<Exception>();
 
     @Override
     public void setup(Configuration config) {
@@ -85,74 +84,82 @@ public class BandwidthProducer extends BandwidthAggregator {
         producer = new KafkaProducer<byte[], byte[]>(props);
         this.config = config;
     }
-
+    @Override
+    public long stop() {
+        long temp = super.stop();
+        log.log(Level.FINE,"Stopping producer having read:"+temp);
+        producer.close();
+        return temp;
+    }
     /**
      * Generate and send a message, close producer a message, and return 1 .
      *
      * @return count of messages produced
      */
     public  void act() {
-
-        log.log(Level.INFO, String.format("\nThread(%s) producing message", Thread.currentThread().getName()));
-
-        //Read a message from /dev/urandom
         int length = config.MESSAGE_SIZE;
-        System.out.println("The length of message is: "+length);
-        byte[] bytes = new byte[length];
         byte[] key = {1};
-
-        InputStream is = null;
-
-        try {
-            is = new BufferedInputStream(new FileInputStream("/dev/urandom"));
-            int offset = 0;
-            is.read(bytes, offset, length);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {is.close();}
-            catch (Exception e) {}
-        }
-
+        log.log(Level.INFO, String.format("Thread(%s) producing message of size: %d", Thread.currentThread().getName(),length));
+        //Produce and send messages
+        byte[] bytes = fillMessage(new byte[length]);
         ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<byte[], byte[]>(config.TOPIC_PREFIX + config.TOPIC_INDEX, key, bytes);
-        byte[] Mlength = producerRecord.value();
-        System.out.println("Here's the prod messg length:" + Mlength.length);
+        log.log(Level.FINE, "Actual produced message size:"+producerRecord.value().length);
         producer.send(producerRecord,new HasSent());
-        try {
-            detectException();
-        } catch (Exception e) {
-            log.warning("\nException while sending: "+e);
-            e.printStackTrace();
+        logBackgroundExceptions();
+    }
+    /**
+     * Reads and log all exceptions detected on background thread.
+     */
+    private void logBackgroundExceptions() {
+        //Log all exceptions
+        while(true) {
+            try {
+                detectException();
+            } catch (Exception e) {
+                log.log(Level.WARNING, "Exception thrown on 'sending' background thread.", e);
+            }
         }
     }
-
-    private synchronized void detectException() throws IOException {
+    /**
+     * Fills a message with bytes
+     * @param message - message to fill bytes
+     */
+    private byte[] fillMessage(byte[] message) {
+        InputStream is = null;
         try {
-            if (this.sendException != null)
-                throw new IOException(this.sendException);
+            //Read a message from /dev/urandom
+            is = new BufferedInputStream(new FileInputStream("/dev/urandom"));
+            is.read(message, 0, message.length);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Exception thrown while reading message from /dev/urandom", e);
         } finally {
-            this.sendException = null;
+            try {is.close();} catch (Exception ignore) {}
         }
+        return message;
     }
-
-    public long stop() {
-        long temp = super.stop();
-        producer.close();
-        return temp;
+    /**
+     * Detects stored exceptions in the callback thread
+     * @throws IOException - io exception detected on background thread
+     */
+    private synchronized void detectException() throws IOException {
+        Exception e = this.sendExceptions.poll();
+        if (e != null)
+            throw new IOException(e);
     }
-
-
+    /**
+     * This class implements the callback for the Kafka Producer send message.
+     * 
+     * @author jwyngaard
+     * @author starchmd - exception queuing
+     */
     public class HasSent implements org.apache.kafka.clients.producer.Callback {
-
+        @Override
         public void onCompletion(RecordMetadata metadata, Exception e) {
-//        public void onCompletion(RecordMetadata record, Exception e) {
-
+            if (e != null) {
+                BandwidthProducer.this.sendExceptions.add(e);
+                return;
+            }
             synchronized (BandwidthProducer.this) {
-
-                if (e != null) {
-                    BandwidthProducer.this.sendException = e;
-                    return;
-                }
                 count++;
             }
         }

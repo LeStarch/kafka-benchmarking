@@ -20,7 +20,6 @@ import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 
-import java.lang.System;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -52,15 +51,13 @@ public class BandwidthConsumer extends BandwidthAggregator {
     }
     /**
      * Consume a message, and return the count consumed.
-     * @return count of messages cosumed
+     * @return count of messages consumed
      */
     public void  act() {
         log.log(Level.INFO,String.format("Thread(%s) consuming message",Thread.currentThread().getName()));
-
         if (iterator.hasNext()) {
             byte[] message = iterator.next().message();
             log.log(Level.FINE, String.format("Length of message recievd:"+message.length));
-            System.out.prinln("Recieved message length: "+message.length);
             synchronized (this) {
                 count++;
             }
