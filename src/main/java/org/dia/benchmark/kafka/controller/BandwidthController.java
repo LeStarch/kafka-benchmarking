@@ -17,6 +17,7 @@ the License.
 package org.dia.benchmark.kafka.controller;
 
 import java.io.IOException;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.dia.benchmark.kafka.Configuration;
@@ -43,8 +44,10 @@ public class BandwidthController implements Aggregator {
     @Override
     public void setup(Configuration config) throws Exception {
         this.config = config;
-        consumers = new Aggregator[config.CONSUMER_NODES.length];
-        producers = new Aggregator[config.PRODUCER_NODES.length];
+        producers = new Aggregator[((config.PRODUCER_NODES)[0].split(",")).length];
+        consumers = new Aggregator[((config.CONSUMER_NODES)[0].split(",")).length];
+        //consumers = new Aggregator[config.CONSUMER_NODES.length];
+        //producers = new Aggregator[config.PRODUCER_NODES.length];
         Aggregator[][] aggregators = { consumers, producers };
         //Setup consumers and producers over the network
         String[] nodes = config.CONSUMER_NODES;
@@ -140,9 +143,15 @@ public class BandwidthController implements Aggregator {
      * @param args - command line arguments
      */
     public static void main(String[] args) {
+        System.out.println("Hello");
         Configuration config = null;
         try {
             config = new Configuration(Configuration.getProperties());
+//            String [] a = config.CONSUMER_NODES;
+//            System.out.println("String a: "+Arrays.toString(a));
+//            System.out.println("String a: "+Arrays.toString(a[0].split(",")));
+//            System.out.println("String a: "+a[0].split(",").length);
+//            System.out.println("Here it is: " + ((config.PRODUCER_NODES)[0].split(",")).length);
         } catch (IOException e) {
             System.err.println("Error properties file does not exist."+e);
             System.exit(-1);
@@ -151,6 +160,7 @@ public class BandwidthController implements Aggregator {
             e.printStackTrace();
             System.exit(-1);
         }
+
         try {
             final BandwidthController bc = new BandwidthController();
             bc.setup(config);
@@ -166,7 +176,7 @@ public class BandwidthController implements Aggregator {
                 bc.count();
                 try {
                     Thread.sleep(config.REPORTING_PERIOD);
-                } catch (InterruptedException e) {} 
+                } catch (InterruptedException e) {}
             }
         } catch (Exception e) {
             System.err.println("Exception reached top-level: "+e);
