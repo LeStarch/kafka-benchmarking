@@ -135,7 +135,7 @@ public class Configuration implements Serializable {
                 String val = properties.getProperty(field.getName());
                 if (field.getType().isArray()) {
                     log.log(Level.FINE,String.format("Overriding %s as array with %s",field.getName(),val));
-                    field.set(this,val.split(":"));
+                    field.set(this,val.split(","));
                 } else if (field.getType().equals(Integer.TYPE)) {
                     log.log(Level.FINE,String.format("Overriding %s as int with %d",field.getName(),Integer.parseInt(val)));
                     field.setInt(this,Integer.parseInt(val));

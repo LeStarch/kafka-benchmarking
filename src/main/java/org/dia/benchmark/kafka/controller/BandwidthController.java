@@ -44,10 +44,8 @@ public class BandwidthController implements Aggregator {
     @Override
     public void setup(Configuration config) throws Exception {
         this.config = config;
-        producers = new Aggregator[((config.PRODUCER_NODES)[0].split(",")).length];
-        consumers = new Aggregator[((config.CONSUMER_NODES)[0].split(",")).length];
-        //consumers = new Aggregator[config.CONSUMER_NODES.length];
-        //producers = new Aggregator[config.PRODUCER_NODES.length];
+        consumers = new Aggregator[config.CONSUMER_NODES.length];
+        producers = new Aggregator[config.PRODUCER_NODES.length];
         Aggregator[][] aggregators = { consumers, producers };
         //Setup consumers and producers over the network
         String[] nodes = config.CONSUMER_NODES;
