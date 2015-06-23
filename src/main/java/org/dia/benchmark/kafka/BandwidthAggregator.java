@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.dia.benchmark.kafka.Aggregator;
+import org.dia.benchmark.kafka.configuration.Configuration;
 /**
  * This aggregator (consumer,producer) measures bandwidth as it handles messages.
  *
@@ -81,11 +83,6 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
         Configuration config = null;
         try {
             config = new Configuration(Configuration.getProperties());
-
-            
-            System.out.println("######The max message size: "+config.MAX_REQUEST_SIZE_CONFIG);
-            System.out.println("######The message size: "+config.MESSAGE_SIZE);
-
             Constructor<?> ctor = Class.forName(args[0]).getConstructor();
             Aggregator agg = (Aggregator)ctor.newInstance(new Object[] {});
             agg.setup(config);

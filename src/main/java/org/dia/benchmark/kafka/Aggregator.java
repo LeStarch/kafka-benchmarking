@@ -14,7 +14,7 @@
  *       */
 package org.dia.benchmark.kafka;
 
-import org.dia.benchmark.kafka.Configuration;
+import org.dia.benchmark.kafka.configuration.Configuration;
 
 /**
  * * Interface used to support aggregation of measured data.

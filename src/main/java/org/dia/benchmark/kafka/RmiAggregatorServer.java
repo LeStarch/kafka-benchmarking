@@ -24,6 +24,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.dia.benchmark.kafka.configuration.Configuration;
+
 /**
  * This aggregator wraps another aggregator for network usage
  * providing an RMI interface to other aggregators.
@@ -46,7 +48,7 @@ public class RmiAggregatorServer implements RmiAggregator {
     public void setup(Configuration config) throws Exception {
         log.log(Level.INFO, "Setting up RMI aggregator");
         child.setup(config);
-        if (config.USE_MONITOR.equalsIgnoreCase("true")) {
+        if (config.get("use.monitor").equalsIgnoreCase("true")) {
             new Thread(new BandwidthAggregator.Monitor(child)).start();
         }
     }
@@ -78,7 +80,7 @@ public class RmiAggregatorServer implements RmiAggregator {
             Configuration config = new Configuration(Configuration.getProperties());
             RmiAggregator agg = new RmiAggregatorServer();
             RmiAggregator stub = (RmiAggregator) UnicastRemoteObject.exportObject(agg,0);
-            Registry registry = LocateRegistry.getRegistry(config.RMI_REGISTRY_PORT);
+            Registry registry = LocateRegistry.getRegistry(Integer.parseInt(config.get("rmi.registry.port")));
             registry.rebind(BIND_NAME, stub);
         } catch (IllegalAccessException e) {
             System.err.println("Illegal access exception: "+e);

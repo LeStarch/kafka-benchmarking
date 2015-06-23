@@ -17,10 +17,9 @@ the License.
 package org.dia.benchmark.kafka.controller;
 
 import java.io.IOException;
-import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.dia.benchmark.kafka.Configuration;
+import org.dia.benchmark.kafka.configuration.Configuration;
 import org.dia.benchmark.kafka.consumer.BandwidthConsumer;
 import org.dia.benchmark.kafka.producer.BandwidthProducer;
 import org.dia.benchmark.kafka.NetworkAggregator;
@@ -44,18 +43,18 @@ public class BandwidthController implements Aggregator {
     @Override
     public void setup(Configuration config) throws Exception {
         this.config = config;
-        consumers = new Aggregator[config.CONSUMER_NODES.length];
-        producers = new Aggregator[config.PRODUCER_NODES.length];
+        consumers = new Aggregator[config.get("consumer.nodes").split(",").length];
+        producers = new Aggregator[config.get("producer.nodes").split(",").length];
         Aggregator[][] aggregators = { consumers, producers };
         //Setup consumers and producers over the network
-        String[] nodes = config.CONSUMER_NODES;
+        String[] nodes = config.get("consumer.nodes").split(",");
         Class<?> clazz = BandwidthConsumer.class;
         for (Aggregator[] array : aggregators) {
             for (int i = 0; i < array.length; i++) {
                 array[i] = new NetworkAggregator(config,clazz,nodes[i]);
                 array[i].setup(config);
             }
-            nodes = config.PRODUCER_NODES;
+            nodes = config.get("producer.nodes").split(",");
             clazz = BandwidthProducer.class;
         }
     }
@@ -92,7 +91,7 @@ public class BandwidthController implements Aggregator {
         }
         long end = System.nanoTime();
         long time = end - this.start;
-        printCriticalData(((double)time)/1000000000.0,this.config.MESSAGE_SIZE,sent,recv);
+        printCriticalData(((double)time)/1000000000.0,Integer.parseInt(this.config.get("message.size")),sent,recv);
         return 0;
     }
     @Override
@@ -114,7 +113,7 @@ public class BandwidthController implements Aggregator {
         }
         long end = System.nanoTime();
         long time = end - this.lastTime;
-        printCriticalData(((double)time)/1000000000.0,this.config.MESSAGE_SIZE,sent-lastSent,recv-lastRecv);
+        printCriticalData(((double)time)/1000000000.0,Integer.parseInt(this.config.get("message.size")),sent-lastSent,recv-lastRecv);
         lastSent=sent; lastRecv=recv; lastTime = end;
         return 0;
     }
@@ -173,7 +172,7 @@ public class BandwidthController implements Aggregator {
             while(true) {
                 bc.count();
                 try {
-                    Thread.sleep(config.REPORTING_PERIOD);
+                    Thread.sleep(Integer.parseInt(config.get("reporting.period")));
                 } catch (InterruptedException e) {}
             }
         } catch (Exception e) {

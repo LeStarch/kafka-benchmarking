@@ -16,17 +16,20 @@ the License.
  */
 package org.dia.benchmark.kafka.consumer;
 
-import kafka.javaapi.consumer.ConsumerConnector;
-import kafka.consumer.ConsumerIterator;
-import kafka.consumer.KafkaStream;
+  
 
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import kafka.consumer.ConsumerConfig;
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
+import kafka.javaapi.consumer.ConsumerConnector;
+
 import org.dia.benchmark.kafka.BandwidthAggregator;
-import org.dia.benchmark.kafka.Configuration;
+import org.dia.benchmark.kafka.configuration.Configuration;
 
 /**
  * This consumer measures bandwidth as it consumes messages.
@@ -40,13 +43,11 @@ public class BandwidthConsumer extends BandwidthAggregator {
 
     @Override
     public void setup(Configuration config) {
-
-        String name = config.TOPIC_PREFIX+config.TOPIC_INDEX;
-        log.log(Level.INFO, String.format("Setting up consumer on topic %s with %d threads",name,config.THREADS_PER_TOPIC));
-
-        ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(config.getKafkaConsumerProperties());
-        Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = consumer.createMessageStreams(config.getTopicThreadCounts(config.TOPIC_COUNT));
-
+        String name = config.get("topic.prefix")+config.get("topic.index");
+        log.log(Level.INFO, String.format("Setting up consumer on topic %s with %d threads",name,config.get("threads.pre.topic")));
+        ConsumerConfig conf = new ConsumerConfig(config.getProps());
+        ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(conf);
+        Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = consumer.createMessageStreams(config.getTopicThreadCounts(Integer.parseInt(config.get("threads.per.topic"))));
         iterator = messageStreams.get(name).get(0).iterator();
     }
     /**

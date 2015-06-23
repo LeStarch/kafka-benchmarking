@@ -20,6 +20,8 @@ package org.dia.benchmark.kafka;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import org.dia.benchmark.kafka.configuration.Configuration;
+
 /**
  * This aggregator wraps another aggregator for network usage.
  *
@@ -40,7 +42,7 @@ public class NetworkAggregator implements Aggregator {
     	 if (System.getSecurityManager() == null) {
              System.setSecurityManager(new SecurityManager());
          }
-         Registry registry = LocateRegistry.getRegistry(host, config.RMI_REGISTRY_PORT);
+         Registry registry = LocateRegistry.getRegistry(host, Integer.parseInt(config.get("rmi.registry.port")));
          RmiAggregator rmiAgg = (RmiAggregator) registry.lookup(RmiAggregatorServer.BIND_NAME);
          rmiAgg.spawn(clazz);
          child = rmiAgg;
