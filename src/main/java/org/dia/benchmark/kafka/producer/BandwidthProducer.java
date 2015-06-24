@@ -65,8 +65,6 @@ public class BandwidthProducer extends BandwidthAggregator {
     }
     /**
      * Generate and send a message, close producer a message, and return 1 .
-     *
-     * @return count of messages produced
      */
     public  void act() {
         int length = Integer.parseInt(config.get("message.size"));

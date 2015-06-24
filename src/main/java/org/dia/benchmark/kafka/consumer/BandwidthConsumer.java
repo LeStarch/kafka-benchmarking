@@ -52,7 +52,6 @@ public class BandwidthConsumer extends BandwidthAggregator {
     }
     /**
      * Consume a message, and return the count consumed.
-     * @return count of messages consumed
      */
     public void  act() {
         log.log(Level.INFO,String.format("Thread(%s) consuming message",Thread.currentThread().getName()));

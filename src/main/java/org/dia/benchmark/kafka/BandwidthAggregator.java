@@ -72,7 +72,6 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
     }
     /**
      * Perform the action specific to this class
-     * @return number of messages processed
      */
     public abstract void act();
     /**

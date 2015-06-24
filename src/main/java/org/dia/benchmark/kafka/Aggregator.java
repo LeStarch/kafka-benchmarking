@@ -17,35 +17,35 @@ package org.dia.benchmark.kafka;
 import org.dia.benchmark.kafka.configuration.Configuration;
 
 /**
- * * Interface used to support aggregation of measured data.
- * *
- * * @author starchmd
+ * Interface used to support aggregation of measured data.
+ *
+ * @author starchmd
  */
 public interface Aggregator {
     /**
-     * * Setup function to supply configuration
-     * * @param config - configuration object
-     * * @throws Exception - exception thrown
+     * Setup function to supply configuration
+     * @param config - configuration object
+     * @throws Exception - exception thrown
      */
     public void setup(Configuration config) throws Exception;
 
     /**
-     * * Start the aggregator and its internal aggregation.
-     * * @throws Exception - exception thrown
+     * Start the aggregator and its internal aggregation.
+     * @throws Exception - exception thrown
      */
     public void start() throws Exception;
 
     /**
-     * * Stop the aggregator and report the message count.
-     * * @return - number of messages counted.
-     * * @throws Exception - exception thrown
+     * Stop the aggregator and report the message count.
+     * @return - number of messages counted.
+     * @throws Exception - exception thrown
      */
     public long stop() throws Exception;
 
     /**
-     * * Get the current count of this aggregator
-     * * @return - number of messages to-date.
-     * * @throws Exception - exception thrown
+     * Get the current count of this aggregator
+     * @return - number of messages to-date.
+     * @throws Exception - exception thrown
      */
     public long count() throws Exception;
 }
