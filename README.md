@@ -9,12 +9,12 @@ This has lead to the need for a Kafka benchmarking suite. That work is captured 
 Code Base
 ---------
 
-Java is choosen as the language of choice for this project because OODT's primary language is Java and thus java should be used to ensure compatibility with OODT.
+Java is choosen as the language of choice for this project because OODT's primary language is Java and thus Java should be used to ensure compatibility with OODT.
 
 To Build
 --------
 
-This project uses maven and pom.xml files to build. It compiles the java source code, constructs a jar, and packages all dependencies into a .tar.gz archive.
+This project uses maven and pom.xml files to build. It compiles the Java source code, constructs a jar, and packages all dependencies into a .tar.gz archive.
 
 ```
 mvn install
@@ -42,7 +42,7 @@ Setup zookeeper ensamble:
  - [] check each's satus: zkServer.sh status
 
 Setup kafka broker cluster //1 broker per node, more is illogical
- - [] Place kafka directory somhwere accessible on each server (producers and consumers included)
+ - [] Place kafka directory somewhere accessible on each server (producers and consumers included)
  - [] Edit the kafka/config/server.properties file on the brokers
  	-- [] brokerid	//Unique number
  	-- [] hostname	
