@@ -85,6 +85,7 @@ public class BandwidthProducer extends BandwidthAggregator {
         while(true) {
             try {
                 detectException();
+                break;
             } catch (Exception e) {
                 log.log(Level.WARNING, "Exception thrown on 'sending' background thread.", e);
             }

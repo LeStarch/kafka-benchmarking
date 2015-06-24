@@ -43,7 +43,7 @@ public class Configuration implements Serializable {
     private static Properties props = new Properties();
     {
     	//Benchmarking properties
-        props.put("message.size",""+1024*1024*1024);
+        props.put("message.size",""+1024);
         props.put("broker.nodes", "localhost:9092");
         props.put("producer.nodes","localhost");
         props.put("consumer.nodes","localhost");
@@ -56,17 +56,19 @@ public class Configuration implements Serializable {
         props.put("topic.prefix","TOPIC_"); //Prefix of topics, topics look like <topic.prefix>#
         
         //New Producer config
+    	Integer bufferSize = 1024*1024*100;
         props.put("bootstrap.servers",props.get("broker.nodes"));//high
+        /*
         //props.put("acks","1");//high
-        props.put("buffer.memory",props.get("message.size"));//high
+        props.put("buffer.memory", bufferSize.toString());//high
         //props.put("compression.type","none");//high
         //props.put("retries","0");//high
         props.put("batch.size","1");//medium
         //props.put("client.id","");//medium DO NOT SET
         //props.put("linger.ms","0");//medium
-        props.put("max.request.size",props.get("message.size"));//medium
-        props.put("receive.buffer.bytes",props.get("message.size"));//medium
-        props.put("send.buffer.bytes",props.get("message.size"));//medium
+        props.put("max.request.size",bufferSize.toString());//medium
+        props.put("receive.buffer.bytes",bufferSize.toString());//medium
+        props.put("send.buffer.bytes",bufferSize.toString());//medium
         //props.put("timeout.ms","30000");//medium
         //props.put("block.on.buffer.full","TRUE");//low
         //props.put("metadata.fetch.timeout.ms","60000");//low
@@ -76,14 +78,15 @@ public class Configuration implements Serializable {
         //props.put("metrics.sample.window.ms","30000");//low
         //props.put("reconnect.backoff.ms","10");//low
         //props.put("retry.backoff.ms","100");//low
+         */
+        props.put("value.serializer","org.apache.kafka.common.serialization.ByteArraySerializer");
+        props.put("key.serializer","org.apache.kafka.common.serialization.ByteArraySerializer");
         
-        /* Old Producer configs
+        /* Old Producer config
         props.put("metadata.broker.list",props.get("broker.nodes")); //REQUIRED
         props.put("request.required.acks","0");
         props.put("request.timeout.ms","10000");
         props.put("producer.type","sync");
-        props.put("serializer.class","org.apache.kafka.common.serialization.ByteArraySerializer");
-        props.put("key.serializer.class","org.apache.kafka.common.serialization.ByteArraySerializer");
         //props.put("partitioner.class","kafka.producer.DefaultPartitioner");
         //props.put("compression.codec","none");
         //props.put("compressed.topics","null");
@@ -102,8 +105,8 @@ public class Configuration implements Serializable {
         props.put("zookeeper.connect","localhost:2181"); //REQUIRED
         //props.put("consumer.id","null"); 
         //props.put("socket.timeout.ms","30 * 1000");
-        props.put("socket.receive.buffer.bytes",props.get("message.size"));
-        props.put("fetch.message.max.bytes",props.get("message.size"));
+        props.put("socket.receive.buffer.bytes",bufferSize.toString());
+        props.put("fetch.message.max.bytes",bufferSize.toString());
         props.put("num.consumer.fetchers","1");
         //props.put("auto.commit.enable","TRUE");
         //props.put("auto.commit.interval.ms","60 * 1000");
@@ -158,9 +161,9 @@ public class Configuration implements Serializable {
      */
     public Map<String,Integer> getTopicThreadCounts(int topic) {
         String name = props.getProperty("topic.prefix")+props.getProperty("topic.index");
-        log.log(Level.FINE,String.format("Setting up topic: %s allowing %d.",name, props.getProperty("thread.per.topic")));
+        log.log(Level.FINE,String.format("Setting up topic: %s allowing %s.",name, props.getProperty("threads.per.topic")));
         Map<String,Integer> map = new HashMap<String,Integer>();
-        map.put(name, Integer.parseInt(props.getProperty("thread.per.topic")));
+        map.put(name, Integer.parseInt(props.getProperty("threads.per.topic")));
         return map;
     }
     /**
