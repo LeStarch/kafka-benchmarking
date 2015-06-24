@@ -54,9 +54,31 @@ public class Configuration implements Serializable {
         props.put("topic.index","0");
         props.put("threads.per.topic","1");       
         props.put("topic.prefix","TOPIC_"); //Prefix of topics, topics look like <topic.prefix>#
-    	
-        //Producer configs
-        props.put("metadata.broker.list",props.get("broker.nodes")); //REAUIRED
+        
+        //New Producer config
+        props.put("bootstrap.servers",props.get("broker.nodes"));//high
+        //props.put("acks","1");//high
+        props.put("buffer.memory",props.get("message.size"));//high
+        //props.put("compression.type","none");//high
+        //props.put("retries","0");//high
+        props.put("batch.size","1");//medium
+        //props.put("client.id","");//medium DO NOT SET
+        //props.put("linger.ms","0");//medium
+        props.put("max.request.size",props.get("message.size"));//medium
+        props.put("receive.buffer.bytes",props.get("message.size"));//medium
+        props.put("send.buffer.bytes",props.get("message.size"));//medium
+        //props.put("timeout.ms","30000");//medium
+        //props.put("block.on.buffer.full","TRUE");//low
+        //props.put("metadata.fetch.timeout.ms","60000");//low
+        //props.put("metadata.max.age.ms","300000");//low
+        //props.put("metric.reporters","[]");//low
+        //props.put("metrics.num.samples","2");//low
+        //props.put("metrics.sample.window.ms","30000");//low
+        //props.put("reconnect.backoff.ms","10");//low
+        //props.put("retry.backoff.ms","100");//low
+        
+        /* Old Producer configs
+        props.put("metadata.broker.list",props.get("broker.nodes")); //REQUIRED
         props.put("request.required.acks","0");
         props.put("request.timeout.ms","10000");
         props.put("producer.type","sync");
@@ -73,8 +95,8 @@ public class Configuration implements Serializable {
         //props.put("queue.enqueue.timeout.ms","-1");
         props.put("batch.num.messages","1");
         props.put("send.buffer.bytes",props.get("message.size"));
-        //props.put("client.id","");  //DO NOT USE
-
+        //props.put("client.id","");  //DO NOT USE */
+        
         //Consumer config
         props.put("group.id","ConsumerGroup"); //REQUIRED
         props.put("zookeeper.connect","localhost:2181"); //REQUIRED
@@ -155,10 +177,8 @@ public class Configuration implements Serializable {
         properties.putAll(System.getProperties());
         Map<String,String> envs = System.getenv();
         for (String key : envs.keySet()) {
-            envs.put(key.toLowerCase().replace("_","."),envs.get(key));
-            envs.remove(key);
+            properties.put(key.toLowerCase().replace("_","."),envs.get(key));
         }
-        properties.putAll(envs);
         return properties;
     }
 }

@@ -52,7 +52,7 @@ public class BandwidthProducer extends BandwidthAggregator {
     @Override
     public void setup(Configuration config) {
         String name = config.get("topic.prefix") + config.get("topic.index");
-        log.log(Level.INFO, String.format("\nSetting up producer on topic %s with %d ###### threads", name, config.get("threads.per.topic")));
+        log.log(Level.INFO, String.format("\nSetting up producer on topic %s with %s ###### threads", name, config.get("threads.per.topic")));
         producer = new KafkaProducer<byte[], byte[]>(config.getProps());
         this.config = config;
     }

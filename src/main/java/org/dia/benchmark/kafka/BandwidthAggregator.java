@@ -96,6 +96,7 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
             e.printStackTrace();
         } catch (Exception e) {
             System.err.println("\nException occured upon execution: "+e);
+            System.out.println("config: " + config);
             e.printStackTrace();
         }
     }
