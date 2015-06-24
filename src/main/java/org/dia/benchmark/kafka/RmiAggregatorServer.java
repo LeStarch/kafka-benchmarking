@@ -37,9 +37,13 @@ public class RmiAggregatorServer implements RmiAggregator {
     private static final Logger log = Logger.getLogger(RmiAggregatorServer.class.getName());
     public static final String BIND_NAME = "RmiServer";
 
-    Aggregator child;
+    Aggregator child = null;
     @Override
     public void spawn(Class<?> clazz) throws Exception {
+    	log.log(Level.INFO,"Attempting to spawn: " + clazz.getName());
+    	if (child != null) {
+    		throw new Exception("Network stub already in use.");
+    	}
         Constructor<?> ctor = clazz.getConstructor();
         child = (Aggregator)ctor.newInstance(new Object[] {});
     }
