@@ -42,7 +42,7 @@ public class Configuration implements Serializable {
     //Setup properties
     private static Properties props = new Properties();
     {
-    	//Benchmarking properties
+        //Benchmarking properties
         props.put("message.size",""+1024);
         props.put("broker.nodes", "localhost:9092");
         props.put("producer.nodes","localhost");
@@ -56,7 +56,7 @@ public class Configuration implements Serializable {
         props.put("topic.prefix","TOPIC_"); //Prefix of topics, topics look like <topic.prefix>#
         
         //New Producer config
-    	Integer bufferSize = 1024*1024*100;
+        Integer bufferSize = 1024*1024*100;
         props.put("bootstrap.servers",props.get("broker.nodes"));//high
         /*
         //props.put("acks","1");//high
@@ -147,11 +147,11 @@ public class Configuration implements Serializable {
      * @return properties object
      */
     public Properties getProps() {
-    	return props;
+        return props;
     }
     
     public String get(String key) {
-    	return props.getProperty(key);
+        return props.getProperty(key);
     }
     
     /**

@@ -42,10 +42,10 @@ public class RmiAggregatorServer implements RmiAggregator {
     Aggregator child = null;
     @Override
     public void spawn(Class<?> clazz) throws Exception {
-    	log.log(Level.INFO,"Attempting to spawn: " + clazz.getName());
-    	if (child != null) {
-    		throw new Exception("Network stub already in use.");
-    	}
+        log.log(Level.INFO,"Attempting to spawn: " + clazz.getName());
+        if (child != null) {
+            throw new Exception("Network stub already in use.");
+        }
         Constructor<?> ctor = clazz.getConstructor();
         child = (Aggregator)ctor.newInstance(new Object[] {});
     }

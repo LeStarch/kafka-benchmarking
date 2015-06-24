@@ -64,11 +64,11 @@ public class BandwidthController implements Aggregator {
         start = System.nanoTime();
         lastTime = start;
         for (Aggregator agg : ArrayUtils.addAll(consumers,producers)) {
-        	try {
-        		agg.start();
-        	} catch (Exception e) {
-        		System.err.println("Error starting: "+e);
-        	}
+            try {
+                agg.start();
+            } catch (Exception e) {
+                System.err.println("Error starting: "+e);
+            }
         }
     }
 
@@ -76,18 +76,18 @@ public class BandwidthController implements Aggregator {
     public long stop() {
         long sent = 0, recv = 0;
         for (Aggregator producer : producers) {
-        	try {
-        		sent += producer.stop();
-        	} catch (Exception e) {
-        		System.err.println("Error stopping: "+e);
-        	}
+            try {
+                sent += producer.stop();
+            } catch (Exception e) {
+                System.err.println("Error stopping: "+e);
+            }
         }
         for (Aggregator consumer : consumers) {
-        	try {
-        		recv += consumer.stop();
-        	} catch (Exception e) {
-        		System.err.println("Error stopping: "+e);
-        	}
+            try {
+                recv += consumer.stop();
+            } catch (Exception e) {
+                System.err.println("Error stopping: "+e);
+            }
         }
         long end = System.nanoTime();
         long time = end - this.start;
@@ -98,18 +98,18 @@ public class BandwidthController implements Aggregator {
     public long count() {
         long sent = 0, recv = 0;
         for (Aggregator producer : producers) {
-        	try {
-        		sent += producer.count();
-        	} catch (Exception e) {
-        		System.err.println("Error retreiving counts: "+e);
-        	}
+            try {
+                sent += producer.count();
+            } catch (Exception e) {
+                System.err.println("Error retreiving counts: "+e);
+            }
         }
         for (Aggregator consumer : consumers) {
-        	try {
-        		recv += consumer.count();
-        	} catch (Exception e) {
-        		System.err.println("Error retreiving counts: "+e);
-        	}      		
+            try {
+                recv += consumer.count();
+            } catch (Exception e) {
+                System.err.println("Error retreiving counts: "+e);
+            }
         }
         long end = System.nanoTime();
         long time = end - this.lastTime;

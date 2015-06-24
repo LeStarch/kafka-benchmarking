@@ -42,7 +42,7 @@ public class NetworkAggregator implements Aggregator {
      * @throws Exception - exception is thrown connecting to RMI
      */
     public NetworkAggregator(Configuration config,Class<?> clazz, String host) throws Exception {
-    	 if (System.getSecurityManager() == null) {
+         if (System.getSecurityManager() == null) {
              System.setSecurityManager(new SecurityManager());
          }
          Registry registry = LocateRegistry.getRegistry(host, Integer.parseInt(config.get("rmi.registry.port")));
