@@ -21,6 +21,8 @@ import java.lang.reflect.Constructor;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +37,7 @@ import org.dia.benchmark.kafka.configuration.Configuration;
 public class RmiAggregatorServer implements RmiAggregator {
 
     private static final Logger log = Logger.getLogger(RmiAggregatorServer.class.getName());
-    public static final String BIND_NAME = "RmiServer";
+    public static final String BIND_NAME_BASE = "RmiServer";
 
     Aggregator child = null;
     @Override
@@ -85,7 +87,10 @@ public class RmiAggregatorServer implements RmiAggregator {
             RmiAggregator agg = new RmiAggregatorServer();
             RmiAggregator stub = (RmiAggregator) UnicastRemoteObject.exportObject(agg,0);
             Registry registry = LocateRegistry.getRegistry(Integer.parseInt(config.get("rmi.registry.port")));
-            registry.rebind(BIND_NAME, stub);
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+            String binder = BIND_NAME_BASE+"-"+format.format(new Date());
+            log.log(Level.INFO, "Binding to name: "+binder);
+            registry.rebind(binder, stub);
         } catch (IllegalAccessException e) {
             System.err.println("Illegal access exception: "+e);
             e.printStackTrace();

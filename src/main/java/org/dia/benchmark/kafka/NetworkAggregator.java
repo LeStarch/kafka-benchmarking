@@ -19,6 +19,8 @@ package org.dia.benchmark.kafka;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.dia.benchmark.kafka.configuration.Configuration;
 
@@ -30,6 +32,7 @@ import org.dia.benchmark.kafka.configuration.Configuration;
 public class NetworkAggregator implements Aggregator {
 
     Aggregator child;
+    private static final Logger log = Logger.getLogger(NetworkAggregator.class.getName());
 
     /**
      * ctor
@@ -43,9 +46,17 @@ public class NetworkAggregator implements Aggregator {
              System.setSecurityManager(new SecurityManager());
          }
          Registry registry = LocateRegistry.getRegistry(host, Integer.parseInt(config.get("rmi.registry.port")));
-         RmiAggregator rmiAgg = (RmiAggregator) registry.lookup(RmiAggregatorServer.BIND_NAME);
-         rmiAgg.spawn(clazz);
-         child = rmiAgg;
+         for (String binder : registry.list()) {
+             try {
+                 RmiAggregator rmiAgg = (RmiAggregator) registry.lookup(binder);
+                 rmiAgg.spawn(clazz);
+                 child = rmiAgg;
+                 return;
+             } catch (Exception e) {
+                 log.log(Level.FINE, "Unable to use network stub: "+binder+"("+e.getMessage()+")");
+             }
+         }
+         throw new Exception("No network stubs available");
     }
 
     @Override
