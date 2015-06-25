@@ -169,8 +169,8 @@ public class Configuration implements Serializable {
         String file = System.getProperty(PROPERTY_FILE_PROP);
         Properties properties = new Properties();
         properties.load(new FileInputStream(file));
-        properties.putAll(System.getProperties());
-        /*Map<String,String> envs = System.getenv();
+        /*properties.putAll(System.getProperties());
+        Map<String,String> envs = System.getenv();
         for (String key : envs.keySet()) {
             properties.put(key.toLowerCase().replace("_","."),envs.get(key));
         }*/
