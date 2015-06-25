@@ -19,6 +19,7 @@ package org.dia.benchmark.kafka.configuration;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -174,5 +175,12 @@ public class Configuration implements Serializable {
             properties.put(key.toLowerCase().replace("_","."),envs.get(key));
         }
         props.putAll(properties);
+        String out = "";
+        Enumeration<Object> keynum = props.keys();
+        while (keynum.hasMoreElements()) {
+            String key = (String)keynum.nextElement();
+            out += "\t"+key+"="+props.get(key)+"\n";
+        }
+        log.log(Level.INFO,"Configuration loaded as:\n"+out);
     }
 }
