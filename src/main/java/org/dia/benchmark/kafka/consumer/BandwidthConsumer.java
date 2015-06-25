@@ -45,7 +45,7 @@ public class BandwidthConsumer extends BandwidthAggregator {
     public void setup(Configuration config) {
         String name = config.get("topic.prefix")+config.get("topic.index");
         log.log(Level.INFO, String.format("Setting up consumer on topic %s with %d threads",name,config.get("threads.pre.topic")));
-        ConsumerConfig conf = new ConsumerConfig(config.getProps());
+        ConsumerConfig conf = new ConsumerConfig(config.getAll());
         ConsumerConnector consumer = kafka.consumer.Consumer.createJavaConsumerConnector(conf);
         Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = consumer.createMessageStreams(config.getTopicThreadCounts(Integer.parseInt(config.get("threads.per.topic"))));
         iterator = messageStreams.get(name).get(0).iterator();

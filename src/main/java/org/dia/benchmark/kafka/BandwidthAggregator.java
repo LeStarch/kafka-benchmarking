@@ -79,9 +79,9 @@ public abstract class BandwidthAggregator implements Runnable,Aggregator {
      * @param args - command line arguments
      */
     public static void main(String[] args) {
-        Configuration config = null;
+        Configuration config = new Configuration();
         try {
-            config = new Configuration(Configuration.getProperties());
+            Configuration.loadProperties();
             Constructor<?> ctor = Class.forName(args[0]).getConstructor();
             Aggregator agg = (Aggregator)ctor.newInstance(new Object[] {});
             agg.setup(config);

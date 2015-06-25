@@ -133,24 +133,15 @@ public class Configuration implements Serializable {
     }
 
     /**
-     * Ctor -- overwrites configuration with properties
-     * @param properties - properties used to build config
-     * @throws IllegalAccessException - failed to set field
-     */
-    public Configuration(Properties properties) throws IllegalAccessException {
-    }
-
-
-    /**
      * Generates properties for Kafka configuration based on static class passed in holding the names
      * of all the available kafka configuration parameters.
      * @return properties object
      */
-    public Properties getProps() {
+    public Properties getAll() {
         return props;
     }
     
-    public String get(String key) {
+    public static String get(String key) {
         return props.getProperty(key);
     }
     
@@ -173,15 +164,15 @@ public class Configuration implements Serializable {
      * @return constructed properties
      * @throws IOException - thrown on failure to read file 
      */
-    public static Properties getProperties() throws IOException {
+    public static void loadProperties() throws IOException {
         String file = System.getProperty(PROPERTY_FILE_PROP);
-        Properties properties = props;
+        Properties properties = new Properties();
         properties.load(new FileInputStream(file));
         properties.putAll(System.getProperties());
         Map<String,String> envs = System.getenv();
         for (String key : envs.keySet()) {
             properties.put(key.toLowerCase().replace("_","."),envs.get(key));
         }
-        return properties;
+        props.putAll(properties);
     }
 }

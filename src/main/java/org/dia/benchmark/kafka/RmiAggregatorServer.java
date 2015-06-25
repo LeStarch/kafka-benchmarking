@@ -83,7 +83,8 @@ public class RmiAggregatorServer implements RmiAggregator {
             System.setSecurityManager(new SecurityManager());
         }
         try {
-            Configuration config = new Configuration(Configuration.getProperties());
+            Configuration config = new Configuration();
+            Configuration.loadProperties();
             RmiAggregator agg = new RmiAggregatorServer();
             RmiAggregator stub = (RmiAggregator) UnicastRemoteObject.exportObject(agg,0);
             Registry registry = LocateRegistry.getRegistry(Integer.parseInt(config.get("rmi.registry.port")));
@@ -91,9 +92,6 @@ public class RmiAggregatorServer implements RmiAggregator {
             String binder = BIND_NAME_BASE+"-"+format.format(new Date());
             log.log(Level.INFO, "Binding to name: "+binder);
             registry.rebind(binder, stub);
-        } catch (IllegalAccessException e) {
-            System.err.println("Illegal access exception: "+e);
-            e.printStackTrace();
         } catch (IOException e) {
             System.err.println("I/O exception: "+e);
             e.printStackTrace();

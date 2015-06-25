@@ -140,10 +140,9 @@ public class BandwidthController implements Aggregator {
      * @param args - command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("Hello");
-        Configuration config = null;
+        Configuration config = new Configuration();
         try {
-            config = new Configuration(Configuration.getProperties());
+            Configuration.loadProperties();
 //            String [] a = config.CONSUMER_NODES;
 //            System.out.println("String a: "+Arrays.toString(a));
 //            System.out.println("String a: "+Arrays.toString(a[0].split(",")));
@@ -152,12 +151,7 @@ public class BandwidthController implements Aggregator {
         } catch (IOException e) {
             System.err.println("Error properties file does not exist."+e);
             System.exit(-1);
-        } catch (IllegalAccessException e) {
-            System.err.println("Illegal access exception in Configuration.java(this)"+e);
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
+        } 
         try {
             final BandwidthController bc = new BandwidthController();
             bc.setup(config);
