@@ -57,35 +57,6 @@ cd bin/
 ./controller.sh 
 ```
 
-
-
-Setup zookeeper ensamble:
- - [] Place zookeeper directory somewhere accessible on each server
- - [] Give each it's own ID by editing a file in a folder named dataDir by adding a single number ID.  Eg: /var/zookeeper/data/myid
- - [] Copy the same zoo.cfg to each zookeeper conf directory on each node
- - [] Start each ZK server: bin/zkServer.sh start ../conf/zoo.cfg
- - [] check each's satus: zkServer.sh status
-
-Setup kafka broker cluster //1 broker per node, more is illogical
- - [] Place kafka directory somewhere accessible on each server (producers and consumers included)
- - [] Edit the kafka/config/server.properties file on the brokers
- 	-- [] brokerid	//Unique number
- 	-- [] hostname	
- 	-- [] zookeeper-connect	//list zookeeper servers:ports in comma separated list
-	-- [] log.dir
-	
- - [] 
- - [] 
- - [] 
-
-
-To create a Producer:
-
-```
- - [ ]
-```
-
-
 License
 -------
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
