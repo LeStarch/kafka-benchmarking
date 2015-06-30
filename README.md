@@ -13,17 +13,21 @@ Java is choosen as the language of choice for this project because OODT's primar
 
 To Build
 --------
-
 This project uses maven and pom.xml files to build. It compiles the Java source code, constructs a jar, and packages all dependencies into a .tar.gz archive.
 
+- System configuration may be edited post build (configurations will be dynamically overridden if needed) but for ease of use edit src/main/resources/benchmark.properties before building.
+
+- Then build:
 ```
-mvn install
+./install
 ```
 
 To Deploy
 ---------
 
-To deploy, untar the archive and run within the extracted directory.
+- If not done prior to building, configure the system by extracting the generated archive (found in /target/ and edit the configuration file kafka-benchmarking-<version>/etc/benchmark.properties
+
+- Copy the generated archive or extracted instance to all machines that will serve as producers or consumers
 
 ```
 tar -xzvf target/*.tar.gz
@@ -31,7 +35,28 @@ tar -xzvf target/*.tar.gz
 
 To Run
 ---------
-To run deploy above on all machines to be used as either Consumers, Producers, or Brokers.
+- Start the kafk broker (cluster or single node, including zookeeper)
+- start a network stub on each producer and consumer
+```
+cd bin/
+./network-stub.sh
+```
+- Either start a producer and consumer manually on each machine:
+```
+cd bin/
+./consumer.sh 
+```
+or
+```
+cd bin/
+./producer.sh 
+```
+Or initaite a controller which will start both as configured
+```
+cd bin/
+./controller.sh 
+```
+
 
 
 Setup zookeeper ensamble:
