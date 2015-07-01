@@ -35,7 +35,7 @@ tar -xzvf target/*.tar.gz
 
 To Run
 ---------
-- Start the kafk broker (cluster or single node, including zookeeper)
+- Start the kafka broker (cluster or single node, including zookeeper)
 - start a network stub on each producer and consumer
 ```
 cd bin/
@@ -51,7 +51,7 @@ or
 cd bin/
 ./producer.sh 
 ```
-Or initaite a controller which will start both as configured
+Or initiate a controller which will start both as configured
 ```
 cd bin/
 ./controller.sh 
