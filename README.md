@@ -5,6 +5,7 @@ Ongoing work on the Streaming-OODT project (http://oodt.apache.org/ , https://is
 
 This has lead to the need for a Kafka benchmarking suite. That work is captured here.
 
+This work was a combined effort between: lestarch, r4space, and aclorta.
 
 Code Base
 ---------
